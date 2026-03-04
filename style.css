@@ -1,0 +1,548 @@
+/* ============================================================
+   FLASHCARD STUDY APP — STYLESHEET
+   ------------------------------------------------------------
+   To customise colours, edit the variables inside :root {}
+   To change the font, swap the Google Fonts import URL and
+   update the --font-main / --font-display variables.
+   ============================================================ */
+
+/* --- Google Fonts import --- */
+@import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap');
+
+/* --- Design tokens (easy to customise) --- */
+:root {
+  --bg:           #f5f2ec;       /* warm off-white page background   */
+  --surface:      #ffffff;       /* card / panel background           */
+  --border:       #e2ddd5;       /* subtle border colour              */
+  --ink:          #1a1714;       /* primary text                      */
+  --ink-soft:     #6b6560;       /* secondary / muted text            */
+  --accent:       #2d6a4f;       /* green — correct / primary action  */
+  --accent-light: #d8f3dc;       /* light green tint                  */
+  --danger:       #c1121f;       /* red — incorrect                   */
+  --danger-light: #ffe5e5;       /* light red tint                    */
+  --warn:         #e07a00;       /* amber — reveal answer             */
+  --warn-light:   #fff3cd;       /* light amber tint                  */
+  --shadow:       0 4px 24px rgba(0,0,0,0.07);
+  --shadow-hover: 0 8px 32px rgba(0,0,0,0.13);
+  --radius:       16px;
+  --font-display: 'DM Serif Display', Georgia, serif;
+  --font-main:    'DM Sans', system-ui, sans-serif;
+  --transition:   0.2s ease;
+}
+
+/* --- Reset & base --- */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: var(--font-main);
+  background-color: var(--bg);
+  color: var(--ink);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* ============================================================
+   HEADER
+   ============================================================ */
+header {
+  width: 100%;
+  text-align: center;
+  padding: 2.5rem 1rem 1.5rem;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+}
+
+header h1 {
+  font-family: var(--font-display);
+  font-size: clamp(1.8rem, 4vw, 2.6rem);
+  letter-spacing: -0.02em;
+  color: var(--ink);
+}
+
+header p.subtitle {
+  margin-top: 0.4rem;
+  font-size: 0.9rem;
+  color: var(--ink-soft);
+  font-weight: 300;
+}
+
+/* ============================================================
+   MODE TOGGLE
+   ============================================================ */
+.mode-toggle {
+  display: flex;
+  gap: 0;
+  background: var(--border);
+  border-radius: 99px;
+  padding: 3px;
+  margin: 1.8rem auto 0;
+  width: fit-content;
+}
+
+.mode-toggle button {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-family: var(--font-main);
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--ink-soft);
+  padding: 0.45rem 1.2rem;
+  border-radius: 99px;
+  transition: background var(--transition), color var(--transition);
+}
+
+.mode-toggle button.active {
+  background: var(--surface);
+  color: var(--ink);
+  box-shadow: 0 1px 6px rgba(0,0,0,0.1);
+}
+
+/* ============================================================
+   MAIN WRAPPER
+   ============================================================ */
+main {
+  width: 100%;
+  max-width: 680px;
+  padding: 2rem 1rem 4rem;
+  flex: 1;
+}
+
+/* ============================================================
+   SCREENS  (shown/hidden via JS)
+   ============================================================ */
+.screen { display: none; }
+.screen.active { display: block; }
+
+/* ============================================================
+   HOME SCREEN
+   ============================================================ */
+.home-screen {
+  text-align: center;
+  padding-top: 1rem;
+}
+
+.home-screen .deck-info {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.8rem 2rem;
+  margin-bottom: 2rem;
+  box-shadow: var(--shadow);
+}
+
+.home-screen .deck-info .count {
+  font-family: var(--font-display);
+  font-size: 3.5rem;
+  color: var(--accent);
+  line-height: 1;
+}
+
+.home-screen .deck-info p {
+  color: var(--ink-soft);
+  font-size: 0.9rem;
+  margin-top: 0.3rem;
+}
+
+.last-score-banner {
+  font-size: 0.85rem;
+  color: var(--ink-soft);
+  margin-bottom: 1.5rem;
+  min-height: 1.2em;
+}
+
+.last-score-banner span {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+/* ============================================================
+   CARDS  (shared by quiz + flashcard mode)
+   ============================================================ */
+.card-wrap {
+  perspective: 1200px;
+  margin: 0 auto 1.5rem;
+  min-height: 260px;
+  cursor: pointer;  /* clickable only in flashcard mode */
+}
+
+/* Quiz mode cards are NOT meant to flip on click */
+.quiz-card-wrap { cursor: default; }
+
+.card {
+  width: 100%;
+  min-height: 260px;
+  position: relative;
+  transform-style: preserve-3d;
+  transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: var(--radius);
+}
+
+.card.flipped { transform: rotateY(180deg); }
+
+.card-face {
+  position: absolute;
+  inset: 0;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 2.5rem;
+  text-align: center;
+  transition: box-shadow var(--transition);
+}
+
+.card-wrap:hover .card-face { box-shadow: var(--shadow-hover); }
+
+.card-face.back {
+  transform: rotateY(180deg);
+  background: var(--accent-light);
+  border-color: #b7e4c7;
+}
+
+.card-label {
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  margin-bottom: 1rem;
+}
+
+.card-face.back .card-label { color: var(--accent); }
+
+.card-text {
+  font-family: var(--font-display);
+  font-size: clamp(1.1rem, 2.5vw, 1.4rem);
+  line-height: 1.5;
+  color: var(--ink);
+}
+
+.card-face.back .card-text { color: #1b4332; }
+
+/* Flip hint (flashcard mode only) */
+.flip-hint {
+  margin-top: 1rem;
+  font-size: 0.75rem;
+  color: var(--ink-soft);
+  opacity: 0.7;
+}
+
+/* ============================================================
+   PROGRESS BAR
+   ============================================================ */
+.progress-wrap {
+  margin-bottom: 1.2rem;
+}
+
+.progress-meta {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.78rem;
+  color: var(--ink-soft);
+  margin-bottom: 0.4rem;
+}
+
+.progress-track {
+  height: 6px;
+  background: var(--border);
+  border-radius: 99px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: var(--accent);
+  border-radius: 99px;
+  transition: width 0.4s ease;
+  width: 0%;
+}
+
+/* ============================================================
+   SCORE CHIPS (correct / incorrect counters during quiz)
+   ============================================================ */
+.score-chips {
+  display: flex;
+  gap: 0.6rem;
+  justify-content: center;
+  margin-bottom: 1.2rem;
+}
+
+.chip {
+  font-size: 0.78rem;
+  font-weight: 600;
+  padding: 0.3rem 0.9rem;
+  border-radius: 99px;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.chip.correct  { background: var(--accent-light); color: var(--accent); }
+.chip.incorrect { background: var(--danger-light); color: var(--danger); }
+
+/* ============================================================
+   ANSWER INPUT  (quiz mode)
+   ============================================================ */
+.answer-section {
+  margin-bottom: 1rem;
+}
+
+.answer-section textarea {
+  width: 100%;
+  padding: 0.9rem 1rem;
+  font-family: var(--font-main);
+  font-size: 0.95rem;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface);
+  color: var(--ink);
+  resize: none;
+  outline: none;
+  transition: border-color var(--transition), box-shadow var(--transition);
+  min-height: 80px;
+}
+
+.answer-section textarea:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(45,106,79,0.1);
+}
+
+/* ============================================================
+   BUTTON STYLES
+   ============================================================ */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  cursor: pointer;
+  font-family: var(--font-main);
+  font-size: 0.9rem;
+  font-weight: 500;
+  padding: 0.7rem 1.4rem;
+  border-radius: 10px;
+  border: 1px solid transparent;
+  transition: background var(--transition), transform var(--transition),
+              box-shadow var(--transition), opacity var(--transition);
+}
+
+.btn:active { transform: scale(0.97); }
+
+.btn-primary {
+  background: var(--ink);
+  color: #fff;
+  border-color: var(--ink);
+}
+.btn-primary:hover { background: #333; }
+
+.btn-accent {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+}
+.btn-accent:hover { background: #235e42; }
+
+.btn-correct {
+  background: var(--accent-light);
+  color: var(--accent);
+  border-color: #b7e4c7;
+}
+.btn-correct:hover { background: #b7e4c7; }
+
+.btn-incorrect {
+  background: var(--danger-light);
+  color: var(--danger);
+  border-color: #f5c6c8;
+}
+.btn-incorrect:hover { background: #f5c6c8; }
+
+.btn-warn {
+  background: var(--warn-light);
+  color: var(--warn);
+  border-color: #ffd69e;
+}
+.btn-warn:hover { background: #ffd69e; }
+
+.btn-ghost {
+  background: transparent;
+  color: var(--ink-soft);
+  border-color: var(--border);
+}
+.btn-ghost:hover { background: var(--border); color: var(--ink); }
+
+.btn-lg {
+  font-size: 1rem;
+  padding: 0.85rem 2rem;
+  border-radius: 12px;
+}
+
+/* Button row helpers */
+.btn-row {
+  display: flex;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.btn-row-judge {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.6rem;
+}
+
+/* Full width button util */
+.btn-full { width: 100%; }
+
+/* ============================================================
+   QUIZ ANSWER REVEAL  (shown after Reveal Answer is clicked)
+   ============================================================ */
+.revealed-answer {
+  background: var(--accent-light);
+  border: 1px solid #b7e4c7;
+  border-radius: 10px;
+  padding: 1rem 1.2rem;
+  margin-bottom: 1rem;
+  font-size: 0.95rem;
+  color: #1b4332;
+  display: none;   /* shown via JS */
+}
+
+.revealed-answer strong {
+  display: block;
+  font-size: 0.7rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 0.4rem;
+}
+
+/* Keyboard shortcut hint */
+.kbd-hint {
+  font-size: 0.72rem;
+  color: var(--ink-soft);
+  text-align: center;
+  margin-top: 0.5rem;
+}
+
+kbd {
+  background: var(--border);
+  border-radius: 4px;
+  padding: 1px 5px;
+  font-family: monospace;
+  font-size: 0.78em;
+}
+
+/* ============================================================
+   RESULTS SCREEN
+   ============================================================ */
+.results-screen {
+  text-align: center;
+}
+
+.results-screen h2 {
+  font-family: var(--font-display);
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+}
+
+.results-screen .big-score {
+  font-family: var(--font-display);
+  font-size: clamp(3.5rem, 10vw, 5rem);
+  color: var(--accent);
+  line-height: 1;
+  margin: 1rem 0 0.3rem;
+}
+
+.results-screen .big-score.low { color: var(--danger); }
+.results-screen .big-score.mid { color: var(--warn); }
+
+.results-screen .pct {
+  font-size: 1.1rem;
+  color: var(--ink-soft);
+  margin-bottom: 2rem;
+}
+
+.results-breakdown {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.8rem;
+  margin: 1.5rem 0 2rem;
+}
+
+.breakdown-item {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1.2rem;
+  box-shadow: var(--shadow);
+}
+
+.breakdown-item .val {
+  font-family: var(--font-display);
+  font-size: 2rem;
+}
+
+.breakdown-item .lbl {
+  font-size: 0.78rem;
+  color: var(--ink-soft);
+  margin-top: 0.2rem;
+}
+
+.breakdown-item.c .val { color: var(--accent); }
+.breakdown-item.i .val { color: var(--danger); }
+
+/* ============================================================
+   FLASHCARD MODE
+   ============================================================ */
+.fc-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.fc-counter {
+  font-size: 0.85rem;
+  color: var(--ink-soft);
+}
+
+/* ============================================================
+   UTILITY
+   ============================================================ */
+.hidden { display: none !important; }
+
+.text-center { text-align: center; }
+.mt-1 { margin-top: 0.5rem; }
+.mt-2 { margin-top: 1rem; }
+.mt-3 { margin-top: 1.5rem; }
+.mb-1 { margin-bottom: 0.5rem; }
+
+/* ============================================================
+   FOOTER
+   ============================================================ */
+footer {
+  width: 100%;
+  text-align: center;
+  padding: 1rem;
+  font-size: 0.75rem;
+  color: var(--ink-soft);
+  border-top: 1px solid var(--border);
+}
+
+/* ============================================================
+   RESPONSIVE  — adjustments for small screens
+   ============================================================ */
+@media (max-width: 500px) {
+  .card-face { padding: 1.5rem 1.2rem; }
+  .btn-row-judge { grid-template-columns: 1fr; }
+  header h1 { font-size: 1.5rem; }
+}

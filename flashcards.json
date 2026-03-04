@@ -1,0 +1,206 @@
+[
+  {
+    "question": "What are the theories of ethics?",
+    "answer": "Consequentialism – an act is judged on its outcomes; Deontology – an act is judged on its motivations"
+  },
+  {
+    "question": "Which ethical theory did John Stuart Mill promote?",
+    "answer": "Utilitarianism"
+  },
+  {
+    "question": "Which body in the UK regulates the medical profession?",
+    "answer": "General Medical Council"
+  },
+  {
+    "question": "What professional qualification is regulated by FEANI?",
+    "answer": "EUR ING"
+  },
+  {
+    "question": "List the three arms of the US government and their functions.",
+    "answer": "Executive – carries out daily government; Judiciary – applies and enforces laws; Legislature – makes laws (Congress)"
+  },
+  {
+    "question": "How are the following regulated in the UK: Architect, Auditing Accountant, Medical Doctor, Veterinary Surgeon, Computer Scientist, Information Technologist?",
+    "answer": "Title only: Architect; Function only: Auditing Accountant; Title and function: Medical Doctor, Veterinary Surgeon; None: Computer Scientist, Information Technologist"
+  },
+  {
+    "question": "What professional qualification is awarded by the BCS?",
+    "answer": "CITP (Chartered Information Technology Practitioner)"
+  },
+  {
+    "question": "What are the four duties in the BCS Code of Conduct?",
+    "answer": "Public Interest; Professional Competence and Integrity; Duty to the Profession; Duty to Relevant Authority"
+  },
+  {
+    "question": "What three features characterise a profession?",
+    "answer": "Self governing; Entry controlled; A recognised body of practitioners"
+  },
+  {
+    "question": "Who authored the report which led to the creation of the Engineering Council?",
+    "answer": "Finniston"
+  },
+  {
+    "question": "What three requirements are necessary for a contract to be enforceable?",
+    "answer": "Intent to create a contract; Competent parties; Consideration"
+  },
+  {
+    "question": "What test is applied in a UK civil court?",
+    "answer": "Balance of probabilities"
+  },
+  {
+    "question": "What four protections are automatic under intellectual property law?",
+    "answer": "Unregistered trademarks; Unregistered design rights; Confidential information; Copyright"
+  },
+  {
+    "question": "What four protections require registration?",
+    "answer": "Internet domain names; Registered designs; Registered trademarks; Patents"
+  },
+  {
+    "question": "When can information be withheld under the Freedom of Information Act 2000?",
+    "answer": "Court records; Trade secrets; Security service records; Vexatious requests"
+  },
+  {
+    "question": "What cyberattack did the Police and Justice Act 2006 address as a loophole in the Computer Misuse Act 1990?",
+    "answer": "Denial of Service"
+  },
+  {
+    "question": "What test is applied in a UK criminal court?",
+    "answer": "Beyond reasonable doubt"
+  },
+  {
+    "question": "Which organisations are not covered by the Freedom of Information Act 2000?",
+    "answer": "MI5; Newspapers"
+  },
+  {
+    "question": "When can confidentiality NOT be enforced under the Public Interest Disclosure Act?",
+    "answer": "Health and safety; Environmental damage; Criminal offences; Failure to comply with legal obligation; Miscarriage of justice"
+  },
+  {
+    "question": "List four UK criminal offences.",
+    "answer": "Murder; Treason; Robbery; Theft"
+  },
+  {
+    "question": "List three UK civil offences.",
+    "answer": "Libel; Breach of contract; Trespass"
+  },
+  {
+    "question": "What are the six data subject rights in GDPR?",
+    "answer": "Right of access; Right to restriction of processing; Right to object and automated decision making; Right to erasure; Right to rectification; Right to data portability"
+  },
+  {
+    "question": "List six grounds for illegal discrimination in UK law.",
+    "answer": "Ethnicity; Age; Disability; Religion; Race; Gender"
+  },
+  {
+    "question": "Data held by what type of organisation does the Freedom of Information Act refer to?",
+    "answer": "Public bodies"
+  },
+  {
+    "question": "Which organisation prosecutes criminals in the UK?",
+    "answer": "CPS (Crown Prosecution Service)"
+  },
+  {
+    "question": "What are the three offences in the Computer Misuse Act 1990?",
+    "answer": "Unauthorised access; Unauthorised access with intent; Unauthorised modification"
+  },
+  {
+    "question": "What provision was introduced in the Police and Justice Act 2006?",
+    "answer": "Unauthorised access becomes an extraditable offence"
+  },
+  {
+    "question": "Who upholds information rights in the UK?",
+    "answer": "Information Commissioner"
+  },
+  {
+    "question": "What is the maximum fee for a GDPR subject access request?",
+    "answer": "Nothing"
+  },
+  {
+    "question": "List the stages of a bill in the UK Parliament.",
+    "answer": "First Reading; Second Reading; Committee Stage; Report Stage; Third Reading; Royal Assent"
+  },
+  {
+    "question": "What is the time limit for responding to a Freedom of Information request?",
+    "answer": "20 days"
+  },
+  {
+    "question": "What is not protected by copyright in the UK?",
+    "answer": "Business logic"
+  },
+  {
+    "question": "How long does copyright last after the author's death in the UK?",
+    "answer": "70 years"
+  },
+  {
+    "question": "How long does copyright of a database last in the UK?",
+    "answer": "15 years"
+  },
+  {
+    "question": "What must an employer pay to an employee who is ill?",
+    "answer": "Statutory Sick Pay"
+  },
+  {
+    "question": "Name two health and safety issues commonly encountered in an IT department.",
+    "answer": "RSI; Eye fatigue"
+  },
+  {
+    "question": "What is the maximum fine for GDPR contravention by a large company?",
+    "answer": "4% of global annual turnover"
+  },
+  {
+    "question": "What is the mechanism used by companies to collect income tax from employees?",
+    "answer": "PAYE"
+  },
+  {
+    "question": "What is the calculation used to estimate return on investment over several years?",
+    "answer": "Discounted Cash Flow Analysis (DCF)"
+  },
+  {
+    "question": "What accounting approach records each transaction twice?",
+    "answer": "Double Entry Bookkeeping"
+  },
+  {
+    "question": "Which organisation must companies file annual returns with?",
+    "answer": "Companies House"
+  },
+  {
+    "question": "What is the ratio of loan capital to equity called?",
+    "answer": "Gearing"
+  },
+  {
+    "question": "What are the three legitimate sources of company funding?",
+    "answer": "Government grant; Bank loan; Equity capital"
+  },
+  {
+    "question": "How long must a data breach be reported within?",
+    "answer": "72 hours"
+  },
+  {
+    "question": "What are the three principles of the CIA triad?",
+    "answer": "Confidentiality; Integrity; Availability"
+  },
+  {
+    "question": "What term describes the loss of a job because the employer no longer needs that role?",
+    "answer": "Redundancy"
+  },
+  {
+    "question": "Give two examples of non-legal entities in the UK.",
+    "answer": "Houses; University departments"
+  },
+  {
+    "question": "Give three examples of legal entities in the UK.",
+    "answer": "Companies; Universities; Government departments"
+  },
+  {
+    "question": "Who runs a company?",
+    "answer": "Board of Directors"
+  },
+  {
+    "question": "Where must a company's list of directors, secretaries and shareholders be held?",
+    "answer": "The company's registered office"
+  },
+  {
+    "question": "What accounting document describes the predicted future financial position of an organisation?",
+    "answer": "Budget"
+  }
+]
