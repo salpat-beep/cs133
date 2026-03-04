@@ -1,0 +1,763 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Match It! — Flashcard Game</title>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@700;800;900&family=Nunito+Sans:wght@400;600&display=swap" rel="stylesheet" />
+  <style>
+    /* =============================================
+       DESIGN TOKENS
+    ============================================= */
+    :root {
+      --c1:  #ff6b6b;  /* coral red   */
+      --c2:  #ffd93d;  /* sunny yellow */
+      --c3:  #6bcb77;  /* fresh green  */
+      --c4:  #4d96ff;  /* sky blue     */
+      --c5:  #ff9f43;  /* orange       */
+      --c6:  #a29bfe;  /* lavender     */
+      --c7:  #fd79a8;  /* pink         */
+      --c8:  #00cec9;  /* teal         */
+      --bg:  #fffdf5;
+      --ink: #1e1b2e;
+      --shadow-fun: 0 6px 0;   /* chunky bottom shadow */
+      --radius: 18px;
+      --font-head: 'Nunito', sans-serif;
+      --font-body: 'Nunito Sans', sans-serif;
+    }
+
+    /* =============================================
+       RESET + BASE
+    ============================================= */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: var(--font-body);
+      background: var(--bg);
+      color: var(--ink);
+      min-height: 100vh;
+      /* animated polka-dot background */
+      background-image:
+        radial-gradient(circle, rgba(255,107,107,0.08) 2px, transparent 2px),
+        radial-gradient(circle, rgba(77,150,255,0.08)  2px, transparent 2px);
+      background-size: 40px 40px, 60px 60px;
+      background-position: 0 0, 20px 20px;
+    }
+
+    /* =============================================
+       HEADER
+    ============================================= */
+    header {
+      text-align: center;
+      padding: 2rem 1rem 1rem;
+      position: relative;
+    }
+
+    header h1 {
+      font-family: var(--font-head);
+      font-weight: 900;
+      font-size: clamp(2rem, 6vw, 3.2rem);
+      /* rainbow gradient text */
+      background: linear-gradient(90deg, var(--c1), var(--c5), var(--c2), var(--c3), var(--c4), var(--c6));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      letter-spacing: -0.02em;
+      animation: rainbowShift 4s linear infinite;
+      background-size: 200%;
+    }
+
+    @keyframes rainbowShift {
+      0%   { background-position: 0% 50%; }
+      100% { background-position: 200% 50%; }
+    }
+
+    header p {
+      font-size: 0.95rem;
+      color: #888;
+      margin-top: 0.3rem;
+    }
+
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      font-family: var(--font-head);
+      font-weight: 700;
+      font-size: 0.85rem;
+      color: var(--c4);
+      text-decoration: none;
+      margin-top: 0.6rem;
+      padding: 0.3rem 0.8rem;
+      border-radius: 99px;
+      background: rgba(77,150,255,0.1);
+      transition: background 0.2s;
+    }
+    .back-link:hover { background: rgba(77,150,255,0.2); }
+
+    /* =============================================
+       MAIN WRAPPER
+    ============================================= */
+    main {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 0 1rem 4rem;
+    }
+
+    /* =============================================
+       STATS BAR
+    ============================================= */
+    .stats-bar {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+      margin: 1.2rem 0 1.6rem;
+    }
+
+    .stat-pill {
+      font-family: var(--font-head);
+      font-weight: 800;
+      font-size: 0.85rem;
+      padding: 0.45rem 1.1rem;
+      border-radius: 99px;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      box-shadow: 0 3px 0 rgba(0,0,0,0.12);
+    }
+
+    .stat-pill.timer  { background: var(--c2); color: #7a5700; }
+    .stat-pill.moves  { background: var(--c4); color: #fff; }
+    .stat-pill.pairs  { background: var(--c3); color: #1a4d25; }
+    .stat-pill.score  { background: var(--c1); color: #fff; }
+
+    /* =============================================
+       CONTROLS BAR
+    ============================================= */
+    .controls {
+      display: flex;
+      justify-content: center;
+      gap: 0.7rem;
+      flex-wrap: wrap;
+      margin-bottom: 1.5rem;
+    }
+
+    /* =============================================
+       BUTTONS
+    ============================================= */
+    .btn {
+      font-family: var(--font-head);
+      font-weight: 800;
+      font-size: 0.9rem;
+      padding: 0.6rem 1.4rem;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: transform 0.1s, box-shadow 0.1s;
+      letter-spacing: 0.01em;
+    }
+
+    .btn:active { transform: translateY(3px); box-shadow: none !important; }
+
+    .btn-start  { background: var(--c3); color: #fff;     box-shadow: var(--shadow-fun) #2d8a3e; }
+    .btn-easy   { background: var(--c2); color: #7a5700;  box-shadow: var(--shadow-fun) #c4920a; }
+    .btn-medium { background: var(--c5); color: #fff;     box-shadow: var(--shadow-fun) #b56a1e; }
+    .btn-hard   { background: var(--c1); color: #fff;     box-shadow: var(--shadow-fun) #b03636; }
+    .btn-home   { background: var(--c4); color: #fff;     box-shadow: var(--shadow-fun) #1a5cb0; }
+
+    .btn.active-diff {
+      outline: 3px solid var(--ink);
+      outline-offset: 2px;
+    }
+
+    /* =============================================
+       GAME GRID
+    ============================================= */
+    #game-area {
+      display: none;  /* shown when game starts */
+    }
+
+    .grid {
+      display: grid;
+      gap: 12px;
+      justify-content: center;
+    }
+
+    /* Grid columns set via JS based on difficulty */
+    .grid.cols-4  { grid-template-columns: repeat(4, 1fr); }
+    .grid.cols-6  { grid-template-columns: repeat(6, 1fr); }
+    .grid.cols-8  { grid-template-columns: repeat(8, 1fr); }
+
+    /* =============================================
+       TILES
+    ============================================= */
+    .tile {
+      aspect-ratio: 1;
+      min-width: 80px;
+      max-width: 150px;
+      width: 100%;
+      border-radius: var(--radius);
+      cursor: pointer;
+      position: relative;
+      transform-style: preserve-3d;
+      transition: transform 0.45s cubic-bezier(0.4,0,0.2,1);
+      /* wiggle on hover (front face only) */
+    }
+
+    .tile.flipped  { transform: rotateY(180deg); }
+    .tile.matched  { transform: rotateY(180deg); cursor: default; }
+
+    /* matched pulse */
+    .tile.matched .tile-back {
+      animation: matchPulse 0.4s ease forwards;
+    }
+    @keyframes matchPulse {
+      0%   { transform: rotateY(180deg) scale(1); }
+      50%  { transform: rotateY(180deg) scale(1.12); }
+      100% { transform: rotateY(180deg) scale(1); }
+    }
+
+    /* wrong-pair shake */
+    .tile.wrong {
+      animation: wrongShake 0.4s ease;
+    }
+    @keyframes wrongShake {
+      0%,100% { transform: rotateY(180deg) translateX(0); }
+      25%      { transform: rotateY(180deg) translateX(-6px); }
+      75%      { transform: rotateY(180deg) translateX(6px); }
+    }
+
+    /* tile faces */
+    .tile-front, .tile-back {
+      position: absolute;
+      inset: 0;
+      border-radius: var(--radius);
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 8px;
+      text-align: center;
+    }
+
+    /* FRONT — face-down state */
+    .tile-front {
+      font-size: 1.6rem;
+      box-shadow: var(--shadow-fun) rgba(0,0,0,0.18);
+      transition: box-shadow 0.1s;
+    }
+
+    .tile:hover:not(.flipped):not(.matched) .tile-front {
+      box-shadow: 0 8px 0 rgba(0,0,0,0.2);
+      transform: translateY(-2px);
+    }
+
+    /* BACK — revealed state */
+    .tile-back {
+      transform: rotateY(180deg);
+      font-family: var(--font-head);
+      font-weight: 800;
+      font-size: clamp(0.55rem, 1.4vw, 0.85rem);
+      line-height: 1.2;
+      color: #fff;
+      box-shadow: var(--shadow-fun) rgba(0,0,0,0.2);
+      word-break: break-word;
+      overflow: hidden;
+    }
+
+    /* Colour assignment — done in JS by data-colour attr */
+    .tile[data-colour="0"] .tile-front { background: var(--c1); }
+    .tile[data-colour="1"] .tile-front { background: var(--c2); }
+    .tile[data-colour="2"] .tile-front { background: var(--c3); }
+    .tile[data-colour="3"] .tile-front { background: var(--c4); }
+    .tile[data-colour="4"] .tile-front { background: var(--c5); }
+    .tile[data-colour="5"] .tile-front { background: var(--c6); }
+    .tile[data-colour="6"] .tile-front { background: var(--c7); }
+    .tile[data-colour="7"] .tile-front { background: var(--c8); }
+
+    .tile[data-colour="0"] .tile-back { background: linear-gradient(135deg,#ff6b6b,#ee5253); }
+    .tile[data-colour="1"] .tile-back { background: linear-gradient(135deg,#ffd93d,#f9ca24); color: #7a5700; }
+    .tile[data-colour="2"] .tile-back { background: linear-gradient(135deg,#6bcb77,#2ecc71); }
+    .tile[data-colour="3"] .tile-back { background: linear-gradient(135deg,#4d96ff,#2980b9); }
+    .tile[data-colour="4"] .tile-back { background: linear-gradient(135deg,#ff9f43,#e67e22); }
+    .tile[data-colour="5"] .tile-back { background: linear-gradient(135deg,#a29bfe,#6c5ce7); }
+    .tile[data-colour="6"] .tile-back { background: linear-gradient(135deg,#fd79a8,#e84393); }
+    .tile[data-colour="7"] .tile-back { background: linear-gradient(135deg,#00cec9,#00b5ad); }
+
+    /* =============================================
+       VICTORY SCREEN
+    ============================================= */
+    #victory {
+      display: none;
+      text-align: center;
+      padding: 2rem 1rem;
+      animation: popIn 0.5s cubic-bezier(0.34,1.56,0.64,1) both;
+    }
+
+    @keyframes popIn {
+      from { opacity: 0; transform: scale(0.7); }
+      to   { opacity: 1; transform: scale(1); }
+    }
+
+    #victory .trophy {
+      font-size: 5rem;
+      display: block;
+      animation: spinBounce 1s ease both;
+    }
+
+    @keyframes spinBounce {
+      0%   { transform: rotate(-30deg) scale(0); opacity: 0; }
+      70%  { transform: rotate(10deg)  scale(1.2); }
+      100% { transform: rotate(0deg)   scale(1); opacity: 1; }
+    }
+
+    #victory h2 {
+      font-family: var(--font-head);
+      font-weight: 900;
+      font-size: clamp(1.8rem, 5vw, 3rem);
+      margin: 0.5rem 0;
+      background: linear-gradient(90deg, var(--c1), var(--c5), var(--c2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .win-stats {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin: 1.2rem 0 1.8rem;
+    }
+
+    .win-stat {
+      background: #fff;
+      border-radius: 16px;
+      padding: 1rem 1.5rem;
+      box-shadow: 0 4px 0 rgba(0,0,0,0.08);
+      font-family: var(--font-head);
+    }
+
+    .win-stat .val {
+      font-size: 2.2rem;
+      font-weight: 900;
+      display: block;
+    }
+
+    .win-stat .lab { font-size: 0.78rem; color: #888; }
+
+    .star-row {
+      font-size: 2.2rem;
+      letter-spacing: 0.1em;
+      margin-bottom: 0.5rem;
+    }
+
+    /* =============================================
+       CONFETTI CANVAS
+    ============================================= */
+    #confetti-canvas {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      pointer-events: none;
+      z-index: 999;
+    }
+
+    /* =============================================
+       DIFFICULTY LABEL
+    ============================================= */
+    .diff-row {
+      text-align: center;
+      margin-bottom: 0.8rem;
+      font-family: var(--font-head);
+      font-weight: 800;
+      font-size: 0.8rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: #aaa;
+    }
+
+    /* =============================================
+       RESPONSIVE
+    ============================================= */
+    @media (max-width: 600px) {
+      .tile { min-width: 60px; }
+      .grid.cols-8 { grid-template-columns: repeat(4, 1fr); }
+      .grid.cols-6 { grid-template-columns: repeat(4, 1fr); }
+    }
+
+    @media (max-width: 380px) {
+      .tile { min-width: 48px; }
+      .tile-back { font-size: 0.5rem; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- confetti canvas (drawn by JS on win) -->
+<canvas id="confetti-canvas"></canvas>
+
+<header>
+  <h1>🃏 Match It!</h1>
+  <p>Flip the tiles · find the pairs · beat the clock!</p>
+  <a class="back-link" href="index.html">← Back to Study App</a>
+</header>
+
+<main>
+
+  <!-- ─── STATS BAR ──────────────────────────────────── -->
+  <div class="stats-bar" id="stats-bar" style="display:none">
+    <div class="stat-pill timer">⏱ <span id="timer-display">0:00</span></div>
+    <div class="stat-pill moves">🖱 <span id="moves-display">0</span> moves</div>
+    <div class="stat-pill pairs">✅ <span id="pairs-display">0</span> / <span id="pairs-total">0</span> pairs</div>
+    <div class="stat-pill score">⭐ <span id="score-display">0</span> pts</div>
+  </div>
+
+  <!-- ─── CONTROLS ───────────────────────────────────── -->
+  <div class="controls" id="controls">
+    <button class="btn btn-easy   active-diff" id="diff-easy"   onclick="setDiff('easy')">  😊 Easy (8 pairs)</button>
+    <button class="btn btn-medium"             id="diff-medium" onclick="setDiff('medium')">🔥 Medium (12 pairs)</button>
+    <button class="btn btn-hard"               id="diff-hard"   onclick="setDiff('hard')">  💀 Hard (16 pairs)</button>
+    <button class="btn btn-start"              id="start-btn"   onclick="startGame()">       🚀 Start!</button>
+  </div>
+
+  <!-- ─── GAME AREA ──────────────────────────────────── -->
+  <div id="game-area">
+    <div class="diff-row" id="diff-label"></div>
+    <div class="grid" id="grid"></div>
+  </div>
+
+  <!-- ─── VICTORY SCREEN ─────────────────────────────── -->
+  <div id="victory">
+    <span class="trophy">🏆</span>
+    <div class="star-row" id="star-row"></div>
+    <h2>You matched them all!</h2>
+    <div class="win-stats">
+      <div class="win-stat">
+        <span class="val" id="win-time">—</span>
+        <span class="lab">Time</span>
+      </div>
+      <div class="win-stat">
+        <span class="val" id="win-moves">—</span>
+        <span class="lab">Moves</span>
+      </div>
+      <div class="win-stat">
+        <span class="val" id="win-score">—</span>
+        <span class="lab">Score</span>
+      </div>
+    </div>
+    <div class="controls">
+      <button class="btn btn-start" onclick="startGame()">🔄 Play Again</button>
+      <button class="btn btn-home"  onclick="location.href='index.html'">🏠 Study App</button>
+    </div>
+  </div>
+
+</main>
+
+<script>
+/* ============================================================
+   MATCH IT! — VANILLA JS MATCHING PAIRS GAME
+   ============================================================
+   HOW IT WORKS:
+   1. Load flashcards.json (same file as the main app).
+   2. Randomly pick N pairs based on difficulty.
+   3. Create 2N tiles: one tile shows the QUESTION, one shows
+      the ANSWER. Shuffle them all onto a grid.
+   4. Player flips two tiles at a time. If question matches
+      its answer → matched (stays open). Otherwise → flip back.
+   5. Score, time, and stars are tracked and shown on win.
+   ============================================================ */
+
+
+/* ── STATE ─────────────────────────────────────────────── */
+let allCards    = [];      // full deck from flashcards.json
+let gamePairs   = [];      // pairs selected for this round
+let flipped     = [];      // tiles currently face-up (max 2)
+let matched     = 0;       // number of matched pairs
+let totalPairs  = 0;
+let moves       = 0;
+let score       = 0;
+let timerInterval = null;
+let secondsElapsed = 0;
+let locked      = false;   // prevents clicking during flip-back
+let difficulty  = 'easy';  // 'easy' | 'medium' | 'hard'
+
+const PAIR_COUNTS = { easy: 8, medium: 12, hard: 16 };
+const CARD_EMOJIS = ['🦊','🐸','🦋','🐙','🦄','🐬','🦁','🐼',
+                     '🦜','🦩','🐨','🦔','🐳','🦕','🐲','🎃'];
+
+/* ── DIFFICULTY ─────────────────────────────────────────── */
+function setDiff(d) {
+  difficulty = d;
+  ['easy','medium','hard'].forEach(x => {
+    document.getElementById('diff-' + x).classList.toggle('active-diff', x === d);
+  });
+}
+
+/* ── LOAD CARDS ─────────────────────────────────────────── */
+async function loadCards() {
+  try {
+    const res = await fetch('flashcards.json');
+    allCards  = await res.json();
+  } catch(e) {
+    alert('Could not load flashcards.json — make sure you\'re running via a local server!');
+  }
+}
+
+/* ── FISHER-YATES SHUFFLE ───────────────────────────────── */
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+/* ── START GAME ─────────────────────────────────────────── */
+function startGame() {
+  if (allCards.length === 0) { alert('Cards not loaded yet!'); return; }
+
+  const count   = PAIR_COUNTS[difficulty];
+  gamePairs     = shuffle(allCards).slice(0, Math.min(count, allCards.length));
+  totalPairs    = gamePairs.length;
+  matched       = 0;
+  moves         = 0;
+  score         = 0;
+  flipped       = [];
+  locked        = false;
+  secondsElapsed = 0;
+
+  // Reset UI
+  document.getElementById('game-area').style.display = 'block';
+  document.getElementById('victory').style.display   = 'none';
+  document.getElementById('stats-bar').style.display = 'flex';
+
+  updateStats();
+
+  // Start timer
+  clearInterval(timerInterval);
+  timerInterval = setInterval(() => {
+    secondsElapsed++;
+    document.getElementById('timer-display').textContent = formatTime(secondsElapsed);
+  }, 1000);
+
+  // Difficulty label
+  const labels = { easy: '😊 Easy', medium: '🔥 Medium', hard: '💀 Hard' };
+  document.getElementById('diff-label').textContent =
+    labels[difficulty] + ' — ' + totalPairs + ' pairs to find';
+
+  buildGrid();
+}
+
+/* ── BUILD GRID ─────────────────────────────────────────── */
+function buildGrid() {
+  const grid = document.getElementById('grid');
+  grid.innerHTML = '';
+
+  // Set grid columns
+  const cols = difficulty === 'easy' ? 4 : difficulty === 'medium' ? 6 : 8;
+  grid.className = 'grid cols-' + cols;
+
+  // Build tile data: each pair gets a question tile and an answer tile
+  // Both share the same pairId so we can detect a match
+  let tiles = [];
+  gamePairs.forEach((card, i) => {
+    const colourIdx = i % 8;
+    const emoji     = CARD_EMOJIS[i % CARD_EMOJIS.length];
+    // Question tile
+    tiles.push({ id: 'q-' + i, pairId: i, type: 'question', text: card.question, colour: colourIdx, emoji });
+    // Answer tile
+    tiles.push({ id: 'a-' + i, pairId: i, type: 'answer',   text: card.answer,   colour: colourIdx, emoji });
+  });
+
+  tiles = shuffle(tiles);
+
+  // Render tiles
+  tiles.forEach(t => {
+    const div = document.createElement('div');
+    div.className   = 'tile';
+    div.dataset.id      = t.id;
+    div.dataset.pairId  = t.pairId;
+    div.dataset.type    = t.type;
+    div.dataset.colour  = t.colour;
+    div.setAttribute('role', 'button');
+    div.setAttribute('aria-label', 'Hidden tile');
+    div.addEventListener('click', () => onTileClick(div));
+
+    // Front face (face-down — shows emoji)
+    const front = document.createElement('div');
+    front.className   = 'tile-front';
+    front.textContent = t.emoji;
+    div.appendChild(front);
+
+    // Back face (revealed — shows text)
+    const back  = document.createElement('div');
+    back.className = 'tile-back';
+
+    // Label the type
+    const label = document.createElement('div');
+    label.style.cssText = 'font-size:0.6em;opacity:0.7;margin-bottom:4px;text-transform:uppercase;letter-spacing:0.08em';
+    label.textContent = t.type === 'question' ? '❓' : '💡';
+    back.appendChild(label);
+
+    const txt = document.createElement('div');
+    txt.textContent = t.text;
+    back.appendChild(txt);
+
+    div.appendChild(back);
+    grid.appendChild(div);
+  });
+}
+
+/* ── TILE CLICK ─────────────────────────────────────────── */
+function onTileClick(tile) {
+  // Ignore if: game locked, already matched, already flipped
+  if (locked) return;
+  if (tile.classList.contains('matched')) return;
+  if (flipped.includes(tile)) return;
+
+  tile.classList.add('flipped');
+  flipped.push(tile);
+
+  if (flipped.length === 2) {
+    moves++;
+    updateStats();
+    checkMatch();
+  }
+}
+
+/* ── CHECK MATCH ────────────────────────────────────────── */
+function checkMatch() {
+  const [a, b] = flipped;
+  const sameId   = a.dataset.pairId === b.dataset.pairId;
+  const diffType = a.dataset.type   !== b.dataset.type;   // must be one Q, one A
+
+  if (sameId && diffType) {
+    // ✅ MATCH!
+    a.classList.add('matched');
+    b.classList.add('matched');
+    matched++;
+
+    // Score: faster = more points, fewer moves = more points
+    const timeBonus  = Math.max(0, 100 - secondsElapsed);
+    const moveBonus  = Math.max(0, 50  - moves);
+    score += 150 + timeBonus + moveBonus;
+
+    updateStats();
+    flipped = [];
+
+    if (matched === totalPairs) {
+      setTimeout(showVictory, 600);
+    }
+  } else {
+    // ❌ No match — shake and flip back
+    locked = true;
+    a.classList.add('wrong');
+    b.classList.add('wrong');
+
+    setTimeout(() => {
+      a.classList.remove('flipped', 'wrong');
+      b.classList.remove('flipped', 'wrong');
+      flipped = [];
+      locked  = false;
+    }, 1000);
+  }
+}
+
+/* ── VICTORY ────────────────────────────────────────────── */
+function showVictory() {
+  clearInterval(timerInterval);
+
+  const pct = matched / totalPairs;
+  const timeScore = secondsElapsed;
+
+  // Stars: based on time relative to difficulty
+  const starThresholds = { easy: [30,60,99], medium: [60,120,200], hard: [90,180,300] };
+  const thresh = starThresholds[difficulty];
+  const stars = timeScore <= thresh[0] ? 3 : timeScore <= thresh[1] ? 2 : 1;
+
+  document.getElementById('star-row').textContent  = '⭐'.repeat(stars) + '☆'.repeat(3 - stars);
+  document.getElementById('win-time').textContent  = formatTime(secondsElapsed);
+  document.getElementById('win-moves').textContent = moves;
+  document.getElementById('win-score').textContent = score;
+
+  document.getElementById('game-area').style.display  = 'none';
+  document.getElementById('victory').style.display    = 'block';
+
+  launchConfetti();
+}
+
+/* ── UPDATE STATS BAR ───────────────────────────────────── */
+function updateStats() {
+  document.getElementById('moves-display').textContent = moves;
+  document.getElementById('pairs-display').textContent = matched;
+  document.getElementById('pairs-total').textContent   = totalPairs;
+  document.getElementById('score-display').textContent = score;
+}
+
+/* ── FORMAT TIME ────────────────────────────────────────── */
+function formatTime(s) {
+  const m = Math.floor(s / 60);
+  const sec = s % 60;
+  return m + ':' + String(sec).padStart(2, '0');
+}
+
+/* ── CONFETTI ────────────────────────────────────────────── */
+/*  A lightweight canvas confetti burst — no libraries needed  */
+function launchConfetti() {
+  const canvas = document.getElementById('confetti-canvas');
+  const ctx    = canvas.getContext('2d');
+  canvas.width  = window.innerWidth;
+  canvas.height = window.innerHeight;
+
+  const colours = ['#ff6b6b','#ffd93d','#6bcb77','#4d96ff','#ff9f43','#a29bfe','#fd79a8','#00cec9'];
+  const pieces  = Array.from({ length: 160 }, () => ({
+    x:  Math.random() * canvas.width,
+    y: -20 - Math.random() * canvas.height * 0.3,
+    w:  6 + Math.random() * 10,
+    h:  8 + Math.random() * 14,
+    r:  Math.random() * Math.PI * 2,
+    dr: (Math.random() - 0.5) * 0.2,
+    dx: (Math.random() - 0.5) * 3,
+    dy: 2 + Math.random() * 4,
+    colour: colours[Math.floor(Math.random() * colours.length)],
+    opacity: 1,
+  }));
+
+  let frame;
+  function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    let alive = false;
+    pieces.forEach(p => {
+      p.x  += p.dx;
+      p.y  += p.dy;
+      p.r  += p.dr;
+      if (p.y > canvas.height * 0.6) p.opacity -= 0.02;
+      if (p.opacity > 0) {
+        alive = true;
+        ctx.save();
+        ctx.globalAlpha = Math.max(0, p.opacity);
+        ctx.translate(p.x, p.y);
+        ctx.rotate(p.r);
+        ctx.fillStyle = p.colour;
+        ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
+        ctx.restore();
+      }
+    });
+    if (alive) frame = requestAnimationFrame(draw);
+    else ctx.clearRect(0, 0, canvas.width, canvas.height);
+  }
+  draw();
+
+  // Stop after 4s
+  setTimeout(() => { cancelAnimationFrame(frame); ctx.clearRect(0,0,canvas.width,canvas.height); }, 4000);
+}
+
+/* ── INIT ────────────────────────────────────────────────── */
+loadCards();
+</script>
+</body>
+</html>

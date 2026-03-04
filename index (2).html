@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Flashcard Study App</title>
+
+  <!-- Our stylesheet -->
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- ══════════════════════════════════════════════════════════
+       HEADER
+       Contains the app title and the Quiz / Flashcard mode toggle.
+  ══════════════════════════════════════════════════════════ -->
+  <header>
+    <h1>Study Cards</h1>
+    <p class="subtitle">Professional Issues in Computing</p>
+
+    <!-- Mode toggle — switches between Quiz and Flashcard mode -->
+    <div class="mode-toggle" role="group" aria-label="App mode">
+      <button id="toggle-quiz" class="active" aria-pressed="true">📝 Quiz Mode</button>
+      <button id="toggle-fc"   aria-pressed="false">🃏 Flashcard Mode</button>
+    </div>
+  </header>
+
+  <!-- ══════════════════════════════════════════════════════════
+       MAIN CONTENT AREA
+       All screens live inside <main>. Only one is visible at a
+       time — controlled by the "active" class in script.js.
+  ══════════════════════════════════════════════════════════ -->
+  <main>
+
+    <!-- ─────────────────────────────────────────────────────────
+         HOME SCREEN  (#home-screen)
+         Shown when the app first loads.
+    ───────────────────────────────────────────────────────── -->
+    <section class="screen active" id="home-screen" aria-label="Home">
+
+      <div class="home-screen">
+
+        <!-- Deck info panel -->
+        <div class="deck-info" id="deck-info">
+          <div class="count" id="deck-count">…</div>
+          <p>flashcards in the deck</p>
+        </div>
+
+        <!-- Last score (loaded from localStorage by script.js) -->
+        <p class="last-score-banner" id="last-score" aria-live="polite"></p>
+
+        <!-- Action buttons -->
+        <div class="btn-row">
+          <button class="btn btn-accent btn-lg" id="start-quiz-btn">
+            📝 Start Quiz (10 questions)
+          </button>
+          <button class="btn btn-ghost btn-lg" id="browse-fc-btn">
+            🃏 Browse Flashcards
+          </button>
+        </div>
+
+        <!-- Link to the matching pairs game -->
+        <div class="btn-row mt-2">
+          <a href="match.html" class="btn btn-lg"
+             style="background:#ffd93d;color:#7a5700;border:none;text-decoration:none;box-shadow:0 4px 0 #c4920a;">
+            🎮 Play Match It! (Pairs Game)
+          </a>
+        </div>
+
+        <!-- Keyboard shortcut legend (quiz mode) -->
+        <p class="kbd-hint mt-3">
+          Keyboard shortcuts in quiz:
+          <kbd>Space</kbd> reveal &nbsp;
+          <kbd>1</kbd> correct &nbsp;
+          <kbd>2</kbd> incorrect
+        </p>
+      </div>
+
+    </section><!-- /#home-screen -->
+
+
+    <!-- ─────────────────────────────────────────────────────────
+         QUIZ SCREEN  (#quiz-screen)
+         Shown during an active quiz round.
+    ───────────────────────────────────────────────────────── -->
+    <section class="screen" id="quiz-screen" aria-label="Quiz">
+
+      <!-- Progress bar -->
+      <div class="progress-wrap" role="progressbar" aria-valuemin="0" aria-valuemax="100">
+        <div class="progress-meta">
+          <span id="progress-label">Question 1 of 10</span>
+          <span>Q <strong id="question-num">1</strong></span>
+        </div>
+        <div class="progress-track">
+          <div class="progress-fill" id="progress-fill"></div>
+        </div>
+      </div>
+
+      <!-- Live score chips -->
+      <div class="score-chips">
+        <div class="chip correct">  ✓ <span id="correct-count">0</span>  correct</div>
+        <div class="chip incorrect">✗ <span id="incorrect-count">0</span> incorrect</div>
+      </div>
+
+      <!-- Question card (not flippable — flip is for flashcard mode only) -->
+      <div class="card-wrap quiz-card-wrap" aria-live="polite">
+        <div class="card" id="quiz-card">
+          <div class="card-face front">
+            <span class="card-label">Question</span>
+            <p class="card-text" id="quiz-card-text"></p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Optional: user types their own answer before revealing -->
+      <div class="answer-section">
+        <textarea
+          id="user-answer"
+          placeholder="(Optional) type your answer here, then click Reveal…"
+          aria-label="Your answer"
+          rows="3"
+        ></textarea>
+      </div>
+
+      <!-- Reveal answer button (hidden after reveal) -->
+      <div class="btn-row mb-1">
+        <button class="btn btn-warn btn-full" id="reveal-btn">
+          💡 Reveal Answer &nbsp;<kbd>Space</kbd>
+        </button>
+      </div>
+
+      <!-- Correct answer box (shown after reveal) -->
+      <div class="revealed-answer" id="revealed-answer" aria-live="assertive">
+        <strong>Correct Answer</strong>
+        <span id="revealed-text"></span>
+      </div>
+
+      <!-- Judge buttons (shown after reveal) -->
+      <div class="btn-row-judge hidden" id="judge-section">
+        <button class="btn btn-correct" id="btn-correct">
+          ✓ Correct &nbsp;<kbd>1</kbd>
+        </button>
+        <button class="btn btn-incorrect" id="btn-incorrect">
+          ✗ Incorrect &nbsp;<kbd>2</kbd>
+        </button>
+      </div>
+
+    </section><!-- /#quiz-screen -->
+
+
+    <!-- ─────────────────────────────────────────────────────────
+         RESULTS SCREEN  (#results-screen)
+         Shown after the last question of a quiz round.
+    ───────────────────────────────────────────────────────── -->
+    <section class="screen results-screen" id="results-screen" aria-label="Results">
+
+      <!-- Progress bar (fills to 100% on completion) -->
+      <div class="progress-wrap">
+        <div class="progress-meta">
+          <span id="progress-label-results">Complete!</span>
+        </div>
+        <div class="progress-track">
+          <div class="progress-fill" id="progress-fill-results" style="width:100%"></div>
+        </div>
+      </div>
+
+      <h2>Quiz Complete 🎉</h2>
+
+      <!-- Big score display -->
+      <div class="big-score" id="big-score">—</div>
+      <p class="pct" id="big-pct"></p>
+
+      <!-- Breakdown grid -->
+      <div class="results-breakdown">
+        <div class="breakdown-item c">
+          <div class="val" id="res-correct">—</div>
+          <div class="lbl">Correct</div>
+        </div>
+        <div class="breakdown-item i">
+          <div class="val" id="res-incorrect">—</div>
+          <div class="lbl">Incorrect</div>
+        </div>
+      </div>
+
+      <!-- Action buttons -->
+      <div class="btn-row">
+        <button class="btn btn-accent btn-lg" id="new-quiz-btn">🔄 Start New Quiz</button>
+        <button class="btn btn-ghost"         id="go-home-btn"> 🏠 Home</button>
+      </div>
+
+    </section><!-- /#results-screen -->
+
+
+    <!-- ─────────────────────────────────────────────────────────
+         FLASHCARD SCREEN  (#fc-screen)
+         Browse-all-cards study mode with flip animation.
+    ───────────────────────────────────────────────────────── -->
+    <section class="screen" id="fc-screen" aria-label="Flashcard browse">
+
+      <!-- Counter + shuffle -->
+      <div class="fc-nav">
+        <span class="fc-counter" id="fc-counter">1 / …</span>
+        <button class="btn btn-ghost" id="fc-shuffle">🔀 Shuffle</button>
+      </div>
+
+      <!-- Flippable card — click to flip (see CSS .card.flipped) -->
+      <div class="card-wrap" id="fc-card-wrap" aria-label="Click card to flip">
+        <div class="card" id="fc-card">
+
+          <!-- FRONT: Question -->
+          <div class="card-face front">
+            <span class="card-label">Question</span>
+            <p class="card-text" id="fc-question"></p>
+            <p class="flip-hint">Click card to reveal answer</p>
+          </div>
+
+          <!-- BACK: Answer -->
+          <div class="card-face back">
+            <span class="card-label">Answer</span>
+            <p class="card-text" id="fc-answer"></p>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Keyboard hint -->
+      <p class="kbd-hint mb-1">
+        <kbd>Space</kbd> flip &nbsp;
+        <kbd>←</kbd> prev &nbsp;
+        <kbd>→</kbd> next
+      </p>
+
+      <!-- Navigation buttons -->
+      <div class="btn-row mt-2">
+        <button class="btn btn-ghost"   id="fc-prev">← Prev</button>
+        <button class="btn btn-primary" id="fc-next">Next →</button>
+      </div>
+
+      <div class="btn-row mt-2">
+        <button class="btn btn-ghost" id="fc-home-btn">🏠 Back to Home</button>
+      </div>
+
+    </section><!-- /#fc-screen -->
+
+  </main><!-- /main -->
+
+
+  <!-- ══════════════════════════════════════════════════════════
+       FOOTER
+  ══════════════════════════════════════════════════════════ -->
+  <footer>
+    Study Card App · data loaded from <code>flashcards.json</code>
+  </footer>
+
+  <!-- Our JavaScript (loaded at the bottom so the DOM is ready) -->
+  <script src="script.js"></script>
+
+</body>
+</html>
