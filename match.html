@@ -259,13 +259,114 @@
       transform: rotateY(180deg);
       font-family: var(--font-head);
       font-weight: 800;
-      font-size: clamp(0.55rem, 1.4vw, 0.85rem);
-      line-height: 1.2;
+      font-size: clamp(0.55rem, 1.3vw, 0.82rem);
+      line-height: 1.25;
       color: #fff;
       box-shadow: var(--shadow-fun) rgba(0,0,0,0.2);
-      word-break: break-word;
       overflow: hidden;
+      flex-direction: column;
+      gap: 4px;
     }
+
+    /* Truncated text inside tile — clips overflow with fade */
+    .tile-back .tile-text-inner {
+      display: -webkit-box;
+      -webkit-line-clamp: 4;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      word-break: break-word;
+      width: 100%;
+    }
+
+    /* "tap to expand" hint shown on flipped tiles with long text */
+    .tile-back .expand-hint {
+      font-size: 0.6rem;
+      opacity: 0.75;
+      margin-top: 3px;
+      letter-spacing: 0.04em;
+      font-weight: 700;
+      display: none;   /* toggled visible by JS when text is clipped */
+    }
+
+    /* Pulse the expand hint to draw attention */
+    @keyframes hintPulse {
+      0%,100% { opacity: 0.55; }
+      50%      { opacity: 1; }
+    }
+    .tile-back .expand-hint.visible {
+      display: block;
+      animation: hintPulse 1.4s ease infinite;
+    }
+
+    /* =============================================
+       TEXT EXPAND MODAL
+    ============================================= */
+    #tile-modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.55);
+      z-index: 900;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+      backdrop-filter: blur(3px);
+      animation: fadeIn 0.15s ease;
+    }
+
+    #tile-modal-overlay.open { display: flex; }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to   { opacity: 1; }
+    }
+
+    #tile-modal {
+      max-width: 480px;
+      width: 100%;
+      border-radius: 24px;
+      padding: 2rem;
+      text-align: center;
+      position: relative;
+      animation: popIn 0.25s cubic-bezier(0.34,1.56,0.64,1) both;
+      box-shadow: 0 24px 60px rgba(0,0,0,0.25);
+    }
+
+    #tile-modal .modal-type-badge {
+      display: inline-block;
+      font-family: var(--font-head);
+      font-size: 0.7rem;
+      font-weight: 800;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      opacity: 0.75;
+      margin-bottom: 0.8rem;
+    }
+
+    #tile-modal .modal-text {
+      font-family: var(--font-head);
+      font-weight: 800;
+      font-size: clamp(1rem, 3vw, 1.35rem);
+      line-height: 1.45;
+      color: #fff;
+    }
+
+    #tile-modal .modal-close {
+      position: absolute;
+      top: 12px; right: 14px;
+      background: rgba(255,255,255,0.25);
+      border: none;
+      border-radius: 50%;
+      width: 32px; height: 32px;
+      font-size: 1rem;
+      cursor: pointer;
+      color: #fff;
+      font-family: var(--font-head);
+      font-weight: 900;
+      display: flex; align-items: center; justify-content: center;
+      transition: background 0.15s;
+    }
+    #tile-modal .modal-close:hover { background: rgba(255,255,255,0.4); }
 
     /* Colour assignment — done in JS by data-colour attr */
     .tile[data-colour="0"] .tile-front { background: var(--c1); }
@@ -398,6 +499,18 @@
 
 <!-- confetti canvas (drawn by JS on win) -->
 <canvas id="confetti-canvas"></canvas>
+
+<!-- ── TEXT EXPAND MODAL ─────────────────────────────────────
+     Appears when a flipped tile's text is too long to read.
+     Clicking the tile again (or the overlay/× button) opens it.
+──────────────────────────────────────────────────────────── -->
+<div id="tile-modal-overlay" role="dialog" aria-modal="true" aria-label="Full card text">
+  <div id="tile-modal">
+    <button class="modal-close" id="modal-close-btn" aria-label="Close">✕</button>
+    <div class="modal-type-badge" id="modal-badge"></div>
+    <div class="modal-text" id="modal-text"></div>
+  </div>
+</div>
 
 <header>
   <h1>🃏 Match It!</h1>
@@ -562,20 +675,16 @@ function buildGrid() {
   grid.className = 'grid cols-' + cols;
 
   // Build tile data: each pair gets a question tile and an answer tile
-  // Both share the same pairId so we can detect a match
   let tiles = [];
   gamePairs.forEach((card, i) => {
     const colourIdx = i % 8;
     const emoji     = CARD_EMOJIS[i % CARD_EMOJIS.length];
-    // Question tile
     tiles.push({ id: 'q-' + i, pairId: i, type: 'question', text: card.question, colour: colourIdx, emoji });
-    // Answer tile
     tiles.push({ id: 'a-' + i, pairId: i, type: 'answer',   text: card.answer,   colour: colourIdx, emoji });
   });
 
   tiles = shuffle(tiles);
 
-  // Render tiles
   tiles.forEach(t => {
     const div = document.createElement('div');
     div.className   = 'tile';
@@ -583,29 +692,38 @@ function buildGrid() {
     div.dataset.pairId  = t.pairId;
     div.dataset.type    = t.type;
     div.dataset.colour  = t.colour;
+    div.dataset.fullText = t.text;           // store full text for modal
     div.setAttribute('role', 'button');
     div.setAttribute('aria-label', 'Hidden tile');
     div.addEventListener('click', () => onTileClick(div));
 
-    // Front face (face-down — shows emoji)
+    // Front face — shows emoji while face-down
     const front = document.createElement('div');
     front.className   = 'tile-front';
     front.textContent = t.emoji;
     div.appendChild(front);
 
-    // Back face (revealed — shows text)
-    const back  = document.createElement('div');
+    // Back face — shown when flipped
+    const back = document.createElement('div');
     back.className = 'tile-back';
 
-    // Label the type
+    // Type icon row
     const label = document.createElement('div');
-    label.style.cssText = 'font-size:0.6em;opacity:0.7;margin-bottom:4px;text-transform:uppercase;letter-spacing:0.08em';
-    label.textContent = t.type === 'question' ? '❓' : '💡';
+    label.style.cssText = 'font-size:0.65em;opacity:0.7;margin-bottom:3px;text-transform:uppercase;letter-spacing:0.08em;flex-shrink:0';
+    label.textContent = t.type === 'question' ? '❓ Question' : '💡 Answer';
     back.appendChild(label);
 
-    const txt = document.createElement('div');
-    txt.textContent = t.text;
-    back.appendChild(txt);
+    // Text — clamp to 4 lines, overflow hidden
+    const inner = document.createElement('div');
+    inner.className   = 'tile-text-inner';
+    inner.textContent = t.text;
+    back.appendChild(inner);
+
+    // "Tap to read" hint — shown by JS after flip if text is clipped
+    const hint = document.createElement('div');
+    hint.className   = 'expand-hint';
+    hint.textContent = '👆 tap to read';
+    back.appendChild(hint);
 
     div.appendChild(back);
     grid.appendChild(div);
@@ -614,18 +732,44 @@ function buildGrid() {
 
 /* ── TILE CLICK ─────────────────────────────────────────── */
 function onTileClick(tile) {
-  // Ignore if: game locked, already matched, already flipped
+  // If tile is already flipped (but not yet judged), open the expand modal
+  if (tile.classList.contains('flipped') && !tile.classList.contains('matched')) {
+    openModal(tile);
+    return;
+  }
+  // If tile is matched, tapping it opens the modal so you can re-read it
+  if (tile.classList.contains('matched')) {
+    openModal(tile);
+    return;
+  }
+  // Ignore during lock
   if (locked) return;
-  if (tile.classList.contains('matched')) return;
-  if (flipped.includes(tile)) return;
+  // Already have two flipped — ignore
+  if (flipped.length >= 2) return;
 
   tile.classList.add('flipped');
   flipped.push(tile);
+
+  // After the flip animation completes, check if text is clipped
+  // and show the "tap to read" hint if so
+  setTimeout(() => checkTextClip(tile), 460);
 
   if (flipped.length === 2) {
     moves++;
     updateStats();
     checkMatch();
+  }
+}
+
+/* Checks whether the text inside a flipped tile is being clipped,
+   and if so reveals the pulsing "tap to read" hint */
+function checkTextClip(tile) {
+  const inner = tile.querySelector('.tile-text-inner');
+  const hint  = tile.querySelector('.expand-hint');
+  if (!inner || !hint) return;
+  // scrollHeight > clientHeight means the text was cut off
+  if (inner.scrollHeight > inner.clientHeight + 2) {
+    hint.classList.add('visible');
   }
 }
 
@@ -755,6 +899,59 @@ function launchConfetti() {
   // Stop after 4s
   setTimeout(() => { cancelAnimationFrame(frame); ctx.clearRect(0,0,canvas.width,canvas.height); }, 4000);
 }
+
+/* ── MODAL ───────────────────────────────────────────────── */
+
+// Colour gradients matching the tile colours (for modal background)
+const MODAL_GRADIENTS = [
+  'linear-gradient(135deg,#ff6b6b,#ee5253)',
+  'linear-gradient(135deg,#ffd93d,#f9ca24)',
+  'linear-gradient(135deg,#6bcb77,#2ecc71)',
+  'linear-gradient(135deg,#4d96ff,#2980b9)',
+  'linear-gradient(135deg,#ff9f43,#e67e22)',
+  'linear-gradient(135deg,#a29bfe,#6c5ce7)',
+  'linear-gradient(135deg,#fd79a8,#e84393)',
+  'linear-gradient(135deg,#00cec9,#00b5ad)',
+];
+const MODAL_TEXT_COLOURS = [
+  '#fff','#7a5700','#fff','#fff','#fff','#fff','#fff','#fff'
+];
+
+function openModal(tile) {
+  const colIdx   = parseInt(tile.dataset.colour, 10);
+  const isQ      = tile.dataset.type === 'question';
+  const fullText = tile.dataset.fullText;
+
+  const modal   = document.getElementById('tile-modal');
+  const overlay = document.getElementById('tile-modal-overlay');
+  const badge   = document.getElementById('modal-badge');
+  const textEl  = document.getElementById('modal-text');
+
+  modal.style.background = MODAL_GRADIENTS[colIdx] || MODAL_GRADIENTS[0];
+  textEl.style.color     = MODAL_TEXT_COLOURS[colIdx] || '#fff';
+  badge.style.color      = MODAL_TEXT_COLOURS[colIdx] || '#fff';
+  badge.textContent      = isQ ? '❓ Question' : '💡 Answer';
+  textEl.textContent     = fullText;
+
+  overlay.classList.add('open');
+}
+
+function closeModal() {
+  document.getElementById('tile-modal-overlay').classList.remove('open');
+}
+
+// Close when clicking the × button
+document.getElementById('modal-close-btn').addEventListener('click', closeModal);
+
+// Close when clicking outside the modal box
+document.getElementById('tile-modal-overlay').addEventListener('click', function(e) {
+  if (e.target === this) closeModal();
+});
+
+// Close on Escape key
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closeModal();
+});
 
 /* ── INIT ────────────────────────────────────────────────── */
 loadCards();
