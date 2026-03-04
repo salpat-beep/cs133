@@ -3,45 +3,44 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Match It! — Flashcard Game</title>
-  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@700;800;900&family=Nunito+Sans:wght@400;600&display=swap" rel="stylesheet" />
+  <title>Match It! 🎉</title>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@700;800;900&family=Nunito+Sans:wght@400;600;700&display=swap" rel="stylesheet" />
   <style>
     /* =============================================
-       DESIGN TOKENS
+       TOKENS
     ============================================= */
     :root {
-      --c1:  #ff6b6b;  /* coral red   */
-      --c2:  #ffd93d;  /* sunny yellow */
-      --c3:  #6bcb77;  /* fresh green  */
-      --c4:  #4d96ff;  /* sky blue     */
-      --c5:  #ff9f43;  /* orange       */
-      --c6:  #a29bfe;  /* lavender     */
-      --c7:  #fd79a8;  /* pink         */
-      --c8:  #00cec9;  /* teal         */
-      --bg:  #fffdf5;
-      --ink: #1e1b2e;
-      --shadow-fun: 0 6px 0;   /* chunky bottom shadow */
-      --radius: 18px;
-      --font-head: 'Nunito', sans-serif;
-      --font-body: 'Nunito Sans', sans-serif;
+      --q-bg:      #ff6f91;   /* pink  — questions */
+      --q-dark:    #c94070;
+      --q-text:    #fff;
+      --a-bg:      #4cc9f0;   /* blue  — answers   */
+      --a-dark:    #1a8db5;
+      --a-text:    #0d3b4f;
+      --sel:       #ffe066;   /* yellow ring when selected */
+      --matched-bg:#b7f0bc;
+      --matched-bd:#52b758;
+      --wrong-bg:  #ffd6d6;
+      --bg:        #fffbf0;
+      --surface:   #ffffff;
+      --ink:       #1e1b2e;
+      --ink-soft:  #888;
+      --radius:    16px;
+      --fh: 'Nunito', sans-serif;
+      --fb: 'Nunito Sans', sans-serif;
     }
 
-    /* =============================================
-       RESET + BASE
-    ============================================= */
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
-      font-family: var(--font-body);
+      font-family: var(--fb);
       background: var(--bg);
       color: var(--ink);
       min-height: 100vh;
-      /* animated polka-dot background */
       background-image:
-        radial-gradient(circle, rgba(255,107,107,0.08) 2px, transparent 2px),
-        radial-gradient(circle, rgba(77,150,255,0.08)  2px, transparent 2px);
-      background-size: 40px 40px, 60px 60px;
-      background-position: 0 0, 20px 20px;
+        radial-gradient(circle, rgba(255,111,145,.07) 2px, transparent 2px),
+        radial-gradient(circle, rgba(76,201,240,.07)  2px, transparent 2px);
+      background-size: 44px 44px, 66px 66px;
+      background-position: 0 0, 22px 22px;
     }
 
     /* =============================================
@@ -49,911 +48,745 @@
     ============================================= */
     header {
       text-align: center;
-      padding: 2rem 1rem 1rem;
-      position: relative;
+      padding: 1.6rem 1rem 0.8rem;
     }
 
     header h1 {
-      font-family: var(--font-head);
-      font-weight: 900;
-      font-size: clamp(2rem, 6vw, 3.2rem);
-      /* rainbow gradient text */
-      background: linear-gradient(90deg, var(--c1), var(--c5), var(--c2), var(--c3), var(--c4), var(--c6));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      letter-spacing: -0.02em;
-      animation: rainbowShift 4s linear infinite;
-      background-size: 200%;
+      font-family: var(--fh); font-weight: 900;
+      font-size: clamp(2rem, 5vw, 3rem);
+      background: linear-gradient(90deg,#ff6f91,#ff9f43,#ffe066,#6bcb77,#4cc9f0,#a29bfe);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text; background-size: 200%;
+      animation: rainbow 4s linear infinite; letter-spacing: -.01em;
     }
+    @keyframes rainbow { to { background-position: 200% 50%; } }
 
-    @keyframes rainbowShift {
-      0%   { background-position: 0% 50%; }
-      100% { background-position: 200% 50%; }
-    }
-
-    header p {
-      font-size: 0.95rem;
-      color: #888;
-      margin-top: 0.3rem;
-    }
+    header p { font-size:.88rem; color:var(--ink-soft); margin-top:.25rem; }
 
     .back-link {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.35rem;
-      font-family: var(--font-head);
-      font-weight: 700;
-      font-size: 0.85rem;
-      color: var(--c4);
-      text-decoration: none;
-      margin-top: 0.6rem;
-      padding: 0.3rem 0.8rem;
-      border-radius: 99px;
-      background: rgba(77,150,255,0.1);
-      transition: background 0.2s;
+      display: inline-flex; align-items: center; gap:.3rem;
+      font-family: var(--fh); font-weight:700; font-size:.8rem;
+      color: #4cc9f0; text-decoration:none; margin-top:.5rem;
+      padding:.25rem .75rem; border-radius:99px;
+      background: rgba(76,201,240,.12); transition: background .2s;
     }
-    .back-link:hover { background: rgba(77,150,255,0.2); }
+    .back-link:hover { background: rgba(76,201,240,.22); }
 
     /* =============================================
-       MAIN WRAPPER
+       LAYOUT
     ============================================= */
-    main {
-      max-width: 860px;
-      margin: 0 auto;
-      padding: 0 1rem 4rem;
-    }
+    main { max-width: 920px; margin: 0 auto; padding: 0 1rem 5rem; }
+
+    .screen { display:none; }
+    .screen.active { display:block; }
 
     /* =============================================
-       STATS BAR
+       HOME
     ============================================= */
-    .stats-bar {
-      display: flex;
-      justify-content: center;
-      gap: 1rem;
-      flex-wrap: wrap;
-      margin: 1.2rem 0 1.6rem;
+    .home-inner { text-align: center; padding: .8rem 0; }
+
+    .legend {
+      display:flex; gap:.8rem; justify-content:center;
+      flex-wrap:wrap; margin:1rem 0;
     }
-
-    .stat-pill {
-      font-family: var(--font-head);
-      font-weight: 800;
-      font-size: 0.85rem;
-      padding: 0.45rem 1.1rem;
-      border-radius: 99px;
-      display: flex;
-      align-items: center;
-      gap: 0.4rem;
-      box-shadow: 0 3px 0 rgba(0,0,0,0.12);
+    .legend-pill {
+      font-family:var(--fh); font-weight:800; font-size:.88rem;
+      padding:.45rem 1.1rem; border-radius:12px;
+      box-shadow: 0 4px 0 rgba(0,0,0,.12);
     }
+    .legend-pill.q { background:var(--q-bg); color:var(--q-text); box-shadow:0 4px 0 var(--q-dark); }
+    .legend-pill.a { background:var(--a-bg); color:var(--a-text); box-shadow:0 4px 0 var(--a-dark); }
 
-    .stat-pill.timer  { background: var(--c2); color: #7a5700; }
-    .stat-pill.moves  { background: var(--c4); color: #fff; }
-    .stat-pill.pairs  { background: var(--c3); color: #1a4d25; }
-    .stat-pill.score  { background: var(--c1); color: #fff; }
+    .how-to {
+      background:var(--surface); border-radius:var(--radius);
+      padding:1rem 1.4rem; margin:0 auto 1.2rem;
+      max-width:440px; text-align:left;
+      box-shadow:0 3px 12px rgba(0,0,0,.06);
+    }
+    .how-to h3 { font-family:var(--fh); font-size:.9rem; margin-bottom:.45rem; }
+    .how-to ol { padding-left:1.2rem; font-size:.84rem; color:#555; line-height:2; }
 
-    /* =============================================
-       CONTROLS BAR
-    ============================================= */
-    .controls {
-      display: flex;
-      justify-content: center;
-      gap: 0.7rem;
-      flex-wrap: wrap;
-      margin-bottom: 1.5rem;
+    /* name input */
+    .name-row {
+      display:flex; align-items:center; gap:.5rem;
+      justify-content:center; margin-bottom:1rem; flex-wrap:wrap;
+    }
+    .name-row label { font-family:var(--fh); font-weight:700; font-size:.9rem; }
+    .name-row input {
+      font-family:var(--fh); font-weight:700; font-size:.95rem;
+      padding:.45rem .9rem; border-radius:10px;
+      border:2px solid #e0e0e0; outline:none; width:170px;
+      transition: border-color .2s;
+    }
+    .name-row input:focus { border-color:var(--q-bg); }
+
+    /* difficulty */
+    .diff-row {
+      display:flex; gap:.6rem; justify-content:center;
+      flex-wrap:wrap; margin-bottom:.9rem;
     }
 
     /* =============================================
        BUTTONS
     ============================================= */
     .btn {
-      font-family: var(--font-head);
-      font-weight: 800;
-      font-size: 0.9rem;
-      padding: 0.6rem 1.4rem;
-      border: none;
-      border-radius: 12px;
-      cursor: pointer;
-      transition: transform 0.1s, box-shadow 0.1s;
-      letter-spacing: 0.01em;
+      font-family:var(--fh); font-weight:800; font-size:.88rem;
+      padding:.55rem 1.25rem; border:none; border-radius:12px;
+      cursor:pointer; transition: transform .08s, box-shadow .08s;
+      letter-spacing:.01em;
     }
-
     .btn:active { transform: translateY(3px); box-shadow: none !important; }
-
-    .btn-start  { background: var(--c3); color: #fff;     box-shadow: var(--shadow-fun) #2d8a3e; }
-    .btn-easy   { background: var(--c2); color: #7a5700;  box-shadow: var(--shadow-fun) #c4920a; }
-    .btn-medium { background: var(--c5); color: #fff;     box-shadow: var(--shadow-fun) #b56a1e; }
-    .btn-hard   { background: var(--c1); color: #fff;     box-shadow: var(--shadow-fun) #b03636; }
-    .btn-home   { background: var(--c4); color: #fff;     box-shadow: var(--shadow-fun) #1a5cb0; }
-
-    .btn.active-diff {
-      outline: 3px solid var(--ink);
-      outline-offset: 2px;
-    }
+    .btn-green  { background:#6bcb77; color:#fff;     box-shadow:0 5px 0 #2d8a3e; }
+    .btn-orange { background:#ff9f43; color:#fff;     box-shadow:0 5px 0 #b56a1e; }
+    .btn-red    { background:#ff6b6b; color:#fff;     box-shadow:0 5px 0 #b03636; }
+    .btn-blue   { background:#4cc9f0; color:#0d3b4f;  box-shadow:0 5px 0 #1a8db5; }
+    .btn-pink   { background:var(--q-bg); color:#fff; box-shadow:0 5px 0 var(--q-dark); }
+    .btn-ghost  { background:#f0f0f0; color:#555;     box-shadow:0 4px 0 #ccc; }
+    .btn.sel    { outline:3px solid var(--ink); outline-offset:2px; }
 
     /* =============================================
-       GAME GRID
+       STATS BAR
     ============================================= */
-    #game-area {
-      display: none;  /* shown when game starts */
+    .stats-bar {
+      display:flex; gap:.6rem; justify-content:center;
+      flex-wrap:wrap; margin: .9rem 0;
     }
-
-    .grid {
-      display: grid;
-      gap: 12px;
-      justify-content: center;
+    .stat-pill {
+      font-family:var(--fh); font-weight:800; font-size:.82rem;
+      padding:.38rem .95rem; border-radius:99px;
+      display:flex; align-items:center; gap:.3rem;
+      box-shadow:0 3px 0 rgba(0,0,0,.1);
     }
-
-    /* Grid columns set via JS based on difficulty */
-    .grid.cols-4  { grid-template-columns: repeat(4, 1fr); }
-    .grid.cols-6  { grid-template-columns: repeat(6, 1fr); }
-    .grid.cols-8  { grid-template-columns: repeat(8, 1fr); }
+    .sp-timer { background:#ffe066; color:#7a5700; }
+    .sp-moves { background:#a29bfe; color:#fff; }
+    .sp-pairs { background:#6bcb77; color:#1a4d25; }
+    .sp-pts   { background:var(--q-bg); color:#fff; }
 
     /* =============================================
-       TILES
+       SELECTED BANNER
+    ============================================= */
+    .sel-banner {
+      font-family:var(--fh); font-weight:800; font-size:.88rem;
+      text-align:center; min-height:1.6rem; color:var(--q-dark);
+      margin:.3rem 0 .7rem;
+    }
+
+    /* =============================================
+       TWO-COLUMN GRID
+    ============================================= */
+    #game-area { display:none; }
+
+    .two-col {
+      display:grid; grid-template-columns:1fr 1fr; gap:1rem;
+    }
+
+    .col-header {
+      font-family:var(--fh); font-weight:900; font-size:.82rem;
+      text-align:center; padding:.45rem; border-radius:10px;
+      margin-bottom:.55rem; letter-spacing:.06em; text-transform:uppercase;
+    }
+    .col-header.q { background:var(--q-bg); color:var(--q-text); }
+    .col-header.a { background:var(--a-bg); color:var(--a-text); }
+
+    .tile-col { display:flex; flex-direction:column; gap:9px; }
+
+    /* =============================================
+       TILES — text only, two colours
     ============================================= */
     .tile {
-      aspect-ratio: 1;
-      min-width: 80px;
-      max-width: 150px;
-      width: 100%;
-      border-radius: var(--radius);
-      cursor: pointer;
-      position: relative;
-      transform-style: preserve-3d;
-      transition: transform 0.45s cubic-bezier(0.4,0,0.2,1);
-      /* wiggle on hover (front face only) */
+      width:100%; border-radius:var(--radius); cursor:pointer;
+      padding:.8rem .95rem;
+      font-family:var(--fh); font-weight:800;
+      font-size:clamp(.7rem,1.4vw,.88rem);
+      line-height:1.35; text-align:center; border:none;
+      position:relative; word-break:break-word;
+      transition: transform .12s, box-shadow .12s, background .15s, opacity .15s;
+      animation: tileIn .35s cubic-bezier(.34,1.56,.64,1) both;
+    }
+    @keyframes tileIn {
+      from { opacity:0; transform:scale(.7) rotate(-3deg); }
+      to   { opacity:1; transform:scale(1)  rotate(0deg); }
     }
 
-    .tile.flipped  { transform: rotateY(180deg); }
-    .tile.matched  { transform: rotateY(180deg); cursor: default; }
-
-    /* matched pulse */
-    .tile.matched .tile-back {
-      animation: matchPulse 0.4s ease forwards;
+    .tile.question {
+      background:var(--q-bg); color:var(--q-text);
+      box-shadow:0 5px 0 var(--q-dark);
     }
-    @keyframes matchPulse {
-      0%   { transform: rotateY(180deg) scale(1); }
-      50%  { transform: rotateY(180deg) scale(1.12); }
-      100% { transform: rotateY(180deg) scale(1); }
+    .tile.answer {
+      background:var(--a-bg); color:var(--a-text);
+      box-shadow:0 5px 0 var(--a-dark);
     }
 
-    /* wrong-pair shake */
-    .tile.wrong {
-      animation: wrongShake 0.4s ease;
+    .tile:hover:not(.matched):not(.wrong-flash) {
+      transform: translateY(-3px) scale(1.02);
+    }
+
+    /* Selected (question tile) */
+    .tile.selected {
+      outline: 4px solid var(--sel);
+      outline-offset: 2px;
+      transform: translateY(-4px) scale(1.03);
+      box-shadow: 0 10px 0 var(--q-dark), 0 0 0 4px var(--sel);
+    }
+
+    /* Matched */
+    .tile.matched {
+      background:var(--matched-bg) !important;
+      color:#1a4d25 !important;
+      box-shadow:0 4px 0 var(--matched-bd) !important;
+      outline:none !important; cursor:default;
+      animation:matchPop .4s cubic-bezier(.34,1.56,.64,1) both;
+    }
+    @keyframes matchPop {
+      50% { transform:scale(1.1) rotate(1.5deg); }
+    }
+    .tile.matched::after {
+      content:'✓'; position:absolute; top:4px; right:7px;
+      font-size:.7rem; color:var(--matched-bd);
+    }
+
+    /* Wrong flash */
+    .tile.wrong-flash {
+      animation: wrongShake .45s ease both;
     }
     @keyframes wrongShake {
-      0%,100% { transform: rotateY(180deg) translateX(0); }
-      25%      { transform: rotateY(180deg) translateX(-6px); }
-      75%      { transform: rotateY(180deg) translateX(6px); }
-    }
-
-    /* tile faces */
-    .tile-front, .tile-back {
-      position: absolute;
-      inset: 0;
-      border-radius: var(--radius);
-      backface-visibility: hidden;
-      -webkit-backface-visibility: hidden;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 8px;
-      text-align: center;
-    }
-
-    /* FRONT — face-down state */
-    .tile-front {
-      font-size: 1.6rem;
-      box-shadow: var(--shadow-fun) rgba(0,0,0,0.18);
-      transition: box-shadow 0.1s;
-    }
-
-    .tile:hover:not(.flipped):not(.matched) .tile-front {
-      box-shadow: 0 8px 0 rgba(0,0,0,0.2);
-      transform: translateY(-2px);
-    }
-
-    /* BACK — revealed state */
-    .tile-back {
-      transform: rotateY(180deg);
-      font-family: var(--font-head);
-      font-weight: 800;
-      font-size: clamp(0.55rem, 1.3vw, 0.82rem);
-      line-height: 1.25;
-      color: #fff;
-      box-shadow: var(--shadow-fun) rgba(0,0,0,0.2);
-      overflow: hidden;
-      flex-direction: column;
-      gap: 4px;
-    }
-
-    /* Truncated text inside tile — clips overflow with fade */
-    .tile-back .tile-text-inner {
-      display: -webkit-box;
-      -webkit-line-clamp: 4;
-      -webkit-box-orient: vertical;
-      overflow: hidden;
-      word-break: break-word;
-      width: 100%;
-    }
-
-    /* "tap to expand" hint shown on flipped tiles with long text */
-    .tile-back .expand-hint {
-      font-size: 0.6rem;
-      opacity: 0.75;
-      margin-top: 3px;
-      letter-spacing: 0.04em;
-      font-weight: 700;
-      display: none;   /* toggled visible by JS when text is clipped */
-    }
-
-    /* Pulse the expand hint to draw attention */
-    @keyframes hintPulse {
-      0%,100% { opacity: 0.55; }
-      50%      { opacity: 1; }
-    }
-    .tile-back .expand-hint.visible {
-      display: block;
-      animation: hintPulse 1.4s ease infinite;
+      0%,100% { transform:translateX(0) rotate(0); background:var(--wrong-bg); color:#c0392b; }
+      25%      { transform:translateX(-7px) rotate(-2deg); }
+      75%      { transform:translateX(7px)  rotate(2deg); }
     }
 
     /* =============================================
-       TEXT EXPAND MODAL
-    ============================================= */
-    #tile-modal-overlay {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.55);
-      z-index: 900;
-      align-items: center;
-      justify-content: center;
-      padding: 1.5rem;
-      backdrop-filter: blur(3px);
-      animation: fadeIn 0.15s ease;
-    }
-
-    #tile-modal-overlay.open { display: flex; }
-
-    @keyframes fadeIn {
-      from { opacity: 0; }
-      to   { opacity: 1; }
-    }
-
-    #tile-modal {
-      max-width: 480px;
-      width: 100%;
-      border-radius: 24px;
-      padding: 2rem;
-      text-align: center;
-      position: relative;
-      animation: popIn 0.25s cubic-bezier(0.34,1.56,0.64,1) both;
-      box-shadow: 0 24px 60px rgba(0,0,0,0.25);
-    }
-
-    #tile-modal .modal-type-badge {
-      display: inline-block;
-      font-family: var(--font-head);
-      font-size: 0.7rem;
-      font-weight: 800;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      opacity: 0.75;
-      margin-bottom: 0.8rem;
-    }
-
-    #tile-modal .modal-text {
-      font-family: var(--font-head);
-      font-weight: 800;
-      font-size: clamp(1rem, 3vw, 1.35rem);
-      line-height: 1.45;
-      color: #fff;
-    }
-
-    #tile-modal .modal-close {
-      position: absolute;
-      top: 12px; right: 14px;
-      background: rgba(255,255,255,0.25);
-      border: none;
-      border-radius: 50%;
-      width: 32px; height: 32px;
-      font-size: 1rem;
-      cursor: pointer;
-      color: #fff;
-      font-family: var(--font-head);
-      font-weight: 900;
-      display: flex; align-items: center; justify-content: center;
-      transition: background 0.15s;
-    }
-    #tile-modal .modal-close:hover { background: rgba(255,255,255,0.4); }
-
-    /* Colour assignment — done in JS by data-colour attr */
-    .tile[data-colour="0"] .tile-front { background: var(--c1); }
-    .tile[data-colour="1"] .tile-front { background: var(--c2); }
-    .tile[data-colour="2"] .tile-front { background: var(--c3); }
-    .tile[data-colour="3"] .tile-front { background: var(--c4); }
-    .tile[data-colour="4"] .tile-front { background: var(--c5); }
-    .tile[data-colour="5"] .tile-front { background: var(--c6); }
-    .tile[data-colour="6"] .tile-front { background: var(--c7); }
-    .tile[data-colour="7"] .tile-front { background: var(--c8); }
-
-    .tile[data-colour="0"] .tile-back { background: linear-gradient(135deg,#ff6b6b,#ee5253); }
-    .tile[data-colour="1"] .tile-back { background: linear-gradient(135deg,#ffd93d,#f9ca24); color: #7a5700; }
-    .tile[data-colour="2"] .tile-back { background: linear-gradient(135deg,#6bcb77,#2ecc71); }
-    .tile[data-colour="3"] .tile-back { background: linear-gradient(135deg,#4d96ff,#2980b9); }
-    .tile[data-colour="4"] .tile-back { background: linear-gradient(135deg,#ff9f43,#e67e22); }
-    .tile[data-colour="5"] .tile-back { background: linear-gradient(135deg,#a29bfe,#6c5ce7); }
-    .tile[data-colour="6"] .tile-back { background: linear-gradient(135deg,#fd79a8,#e84393); }
-    .tile[data-colour="7"] .tile-back { background: linear-gradient(135deg,#00cec9,#00b5ad); }
-
-    /* =============================================
-       VICTORY SCREEN
+       VICTORY
     ============================================= */
     #victory {
-      display: none;
-      text-align: center;
-      padding: 2rem 1rem;
-      animation: popIn 0.5s cubic-bezier(0.34,1.56,0.64,1) both;
+      text-align:center; padding:1.2rem .5rem;
+      animation:popIn .4s cubic-bezier(.34,1.56,.64,1) both;
     }
-
     @keyframes popIn {
-      from { opacity: 0; transform: scale(0.7); }
-      to   { opacity: 1; transform: scale(1); }
+      from { opacity:0; transform:scale(.7); }
+      to   { opacity:1; transform:scale(1); }
     }
-
-    #victory .trophy {
-      font-size: 5rem;
-      display: block;
-      animation: spinBounce 1s ease both;
+    .trophy { font-size:4.5rem; display:block; animation:spinB .8s ease both; }
+    @keyframes spinB {
+      0%  { transform:rotate(-25deg) scale(0); opacity:0; }
+      70% { transform:rotate(8deg) scale(1.15); }
+      100%{ transform:rotate(0) scale(1); opacity:1; }
     }
-
-    @keyframes spinBounce {
-      0%   { transform: rotate(-30deg) scale(0); opacity: 0; }
-      70%  { transform: rotate(10deg)  scale(1.2); }
-      100% { transform: rotate(0deg)   scale(1); opacity: 1; }
-    }
-
     #victory h2 {
-      font-family: var(--font-head);
-      font-weight: 900;
-      font-size: clamp(1.8rem, 5vw, 3rem);
-      margin: 0.5rem 0;
-      background: linear-gradient(90deg, var(--c1), var(--c5), var(--c2));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
+      font-family:var(--fh); font-weight:900;
+      font-size:clamp(1.6rem,4vw,2.5rem);
+      background:linear-gradient(90deg,#ff6f91,#ff9f43,#ffe066);
+      -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+      background-clip:text; margin:.35rem 0;
     }
+    .star-row { font-size:2rem; letter-spacing:.08em; margin:.3rem 0 1rem; }
 
-    .win-stats {
-      display: flex;
-      gap: 1rem;
-      justify-content: center;
-      flex-wrap: wrap;
-      margin: 1.2rem 0 1.8rem;
+    .win-grid {
+      display:grid; grid-template-columns:repeat(3,1fr);
+      gap:.65rem; max-width:380px; margin:0 auto 1.3rem;
     }
-
-    .win-stat {
-      background: #fff;
-      border-radius: 16px;
-      padding: 1rem 1.5rem;
-      box-shadow: 0 4px 0 rgba(0,0,0,0.08);
-      font-family: var(--font-head);
+    .win-box {
+      background:var(--surface); border-radius:14px;
+      padding:.85rem .4rem; box-shadow:0 4px 0 rgba(0,0,0,.07);
     }
+    .win-box .v { font-family:var(--fh); font-weight:900; font-size:1.6rem; display:block; }
+    .win-box .l { font-size:.7rem; color:var(--ink-soft); }
 
-    .win-stat .val {
-      font-size: 2.2rem;
-      font-weight: 900;
-      display: block;
+    .win-actions { display:flex; gap:.7rem; justify-content:center; flex-wrap:wrap; }
+
+    /* =============================================
+       LEADERBOARD
+    ============================================= */
+    .lb-wrap {
+      background:var(--surface); border-radius:20px;
+      padding:1.1rem 1.3rem; margin:1.3rem auto 0;
+      max-width:460px; box-shadow:0 6px 24px rgba(0,0,0,.07);
     }
+    .lb-wrap h3 {
+      font-family:var(--fh); font-weight:900; font-size:1.05rem;
+      text-align:center; margin-bottom:.9rem;
+    }
+    .lb-row {
+      display:grid; grid-template-columns:2.2rem 1fr auto;
+      align-items:center; gap:.55rem;
+      padding:.5rem .4rem; border-radius:10px;
+      font-family:var(--fh); font-weight:800; font-size:.88rem;
+      margin-bottom:.3rem;
+    }
+    .lb-row:nth-child(1) { background:#fff6cc; }
+    .lb-row:nth-child(2) { background:#f0f4ff; }
+    .lb-row:nth-child(3) { background:#fff0f5; }
+    .lb-rank { font-size:1.15rem; text-align:center; }
+    .lb-name { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+    .lb-pts  { color:var(--q-dark); font-size:.92rem; white-space:nowrap; }
+    .lb-meta { font-size:.67rem; color:var(--ink-soft); font-weight:600; grid-column:2/-1; margin-top:-.15rem; }
+    .lb-empty { text-align:center; color:var(--ink-soft); font-size:.88rem; padding:.5rem 0; }
+    .lb-spin  { display:inline-block; animation:spin 1s linear infinite; }
+    @keyframes spin { to { transform:rotate(360deg); } }
 
-    .win-stat .lab { font-size: 0.78rem; color: #888; }
-
-    .star-row {
-      font-size: 2.2rem;
-      letter-spacing: 0.1em;
-      margin-bottom: 0.5rem;
+    .lb-status {
+      font-family:var(--fh); font-weight:800; font-size:.9rem;
+      text-align:center; color:var(--q-dark);
+      min-height:1.3em; margin-bottom:.8rem;
     }
 
     /* =============================================
-       CONFETTI CANVAS
+       CONFETTI
     ============================================= */
     #confetti-canvas {
-      position: fixed;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      pointer-events: none;
-      z-index: 999;
-    }
-
-    /* =============================================
-       DIFFICULTY LABEL
-    ============================================= */
-    .diff-row {
-      text-align: center;
-      margin-bottom: 0.8rem;
-      font-family: var(--font-head);
-      font-weight: 800;
-      font-size: 0.8rem;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      color: #aaa;
+      position:fixed; inset:0;
+      pointer-events:none; z-index:999;
     }
 
     /* =============================================
        RESPONSIVE
     ============================================= */
-    @media (max-width: 600px) {
-      .tile { min-width: 60px; }
-      .grid.cols-8 { grid-template-columns: repeat(4, 1fr); }
-      .grid.cols-6 { grid-template-columns: repeat(4, 1fr); }
+    @media (max-width:480px) {
+      .two-col { gap:.5rem; }
+      .tile { font-size:.67rem; padding:.65rem .55rem; border-radius:12px; }
     }
-
-    @media (max-width: 380px) {
-      .tile { min-width: 48px; }
-      .tile-back { font-size: 0.5rem; }
+    @media (max-width:340px) {
+      .two-col { grid-template-columns:1fr; }
     }
   </style>
 </head>
 <body>
-
-<!-- confetti canvas (drawn by JS on win) -->
 <canvas id="confetti-canvas"></canvas>
 
-<!-- ── TEXT EXPAND MODAL ─────────────────────────────────────
-     Appears when a flipped tile's text is too long to read.
-     Clicking the tile again (or the overlay/× button) opens it.
-──────────────────────────────────────────────────────────── -->
-<div id="tile-modal-overlay" role="dialog" aria-modal="true" aria-label="Full card text">
-  <div id="tile-modal">
-    <button class="modal-close" id="modal-close-btn" aria-label="Close">✕</button>
-    <div class="modal-type-badge" id="modal-badge"></div>
-    <div class="modal-text" id="modal-text"></div>
-  </div>
-</div>
-
 <header>
-  <h1>🃏 Match It!</h1>
-  <p>Flip the tiles · find the pairs · beat the clock!</p>
-  <a class="back-link" href="index.html">← Back to Study App</a>
+  <h1>🎉 Match It!</h1>
+  <p>Click a question · then click its answer · beat the clock!</p>
+  <a class="back-link" href="index.html">← Study App</a>
 </header>
 
 <main>
 
-  <!-- ─── STATS BAR ──────────────────────────────────── -->
-  <div class="stats-bar" id="stats-bar" style="display:none">
-    <div class="stat-pill timer">⏱ <span id="timer-display">0:00</span></div>
-    <div class="stat-pill moves">🖱 <span id="moves-display">0</span> moves</div>
-    <div class="stat-pill pairs">✅ <span id="pairs-display">0</span> / <span id="pairs-total">0</span> pairs</div>
-    <div class="stat-pill score">⭐ <span id="score-display">0</span> pts</div>
-  </div>
+  <!-- ════════════════════════════
+       HOME SCREEN
+  ════════════════════════════ -->
+  <section class="screen active" id="home-screen">
+    <div class="home-inner">
 
-  <!-- ─── CONTROLS ───────────────────────────────────── -->
-  <div class="controls" id="controls">
-    <button class="btn btn-easy   active-diff" id="diff-easy"   onclick="setDiff('easy')">  😊 Easy (8 pairs)</button>
-    <button class="btn btn-medium"             id="diff-medium" onclick="setDiff('medium')">🔥 Medium (12 pairs)</button>
-    <button class="btn btn-hard"               id="diff-hard"   onclick="setDiff('hard')">  💀 Hard (16 pairs)</button>
-    <button class="btn btn-start"              id="start-btn"   onclick="startGame()">       🚀 Start!</button>
-  </div>
-
-  <!-- ─── GAME AREA ──────────────────────────────────── -->
-  <div id="game-area">
-    <div class="diff-row" id="diff-label"></div>
-    <div class="grid" id="grid"></div>
-  </div>
-
-  <!-- ─── VICTORY SCREEN ─────────────────────────────── -->
-  <div id="victory">
-    <span class="trophy">🏆</span>
-    <div class="star-row" id="star-row"></div>
-    <h2>You matched them all!</h2>
-    <div class="win-stats">
-      <div class="win-stat">
-        <span class="val" id="win-time">—</span>
-        <span class="lab">Time</span>
+      <div class="legend">
+        <div class="legend-pill q">❓ Questions</div>
+        <div class="legend-pill a">💡 Answers</div>
       </div>
-      <div class="win-stat">
-        <span class="val" id="win-moves">—</span>
-        <span class="lab">Moves</span>
+
+      <div class="how-to">
+        <h3>📖 How to play</h3>
+        <ol>
+          <li>Click a <strong>pink</strong> question tile — it glows yellow</li>
+          <li>Click the matching <strong>blue</strong> answer tile</li>
+          <li>Match all pairs as fast as you can!</li>
+          <li>Faster + fewer mistakes = more ⭐ points</li>
+        </ol>
       </div>
-      <div class="win-stat">
-        <span class="val" id="win-score">—</span>
-        <span class="lab">Score</span>
+
+      <div class="name-row">
+        <label for="player-name">Your name:</label>
+        <input id="player-name" type="text" maxlength="18" placeholder="Enter name…" />
+      </div>
+
+      <div class="diff-row">
+        <button class="btn btn-green sel"  id="diff-easy"   onclick="setDiff('easy')">  😊 Easy (6 pairs)</button>
+        <button class="btn btn-orange"      id="diff-medium" onclick="setDiff('medium')">🔥 Medium (10 pairs)</button>
+        <button class="btn btn-red"         id="diff-hard"   onclick="setDiff('hard')">  💀 Hard (14 pairs)</button>
+      </div>
+
+      <div class="diff-row">
+        <button class="btn btn-pink" onclick="startGame()">🚀 Let's Go!</button>
+      </div>
+
+      <div class="lb-wrap">
+        <h3>🏆 Live Leaderboard</h3>
+        <div id="home-lb"><span class="lb-spin">⏳</span></div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ════════════════════════════
+       GAME SCREEN
+  ════════════════════════════ -->
+  <section class="screen" id="game-screen">
+
+    <div class="stats-bar">
+      <div class="stat-pill sp-timer">⏱ <span id="timer-display">0:00</span></div>
+      <div class="stat-pill sp-moves">🖱 <span id="moves-display">0</span> moves</div>
+      <div class="stat-pill sp-pairs">✅ <span id="pairs-display">0</span> / <span id="pairs-total">0</span></div>
+      <div class="stat-pill sp-pts">⭐ <span id="score-display">0</span> pts</div>
+    </div>
+
+    <div class="sel-banner" id="sel-banner">👆 Click a pink question to start!</div>
+
+    <div id="game-area">
+      <div class="two-col">
+        <div>
+          <div class="col-header q">❓ Questions</div>
+          <div class="tile-col" id="q-col"></div>
+        </div>
+        <div>
+          <div class="col-header a">💡 Answers</div>
+          <div class="tile-col" id="a-col"></div>
+        </div>
       </div>
     </div>
-    <div class="controls">
-      <button class="btn btn-start" onclick="startGame()">🔄 Play Again</button>
-      <button class="btn btn-home"  onclick="location.href='index.html'">🏠 Study App</button>
+
+  </section>
+
+  <!-- ════════════════════════════
+       VICTORY SCREEN
+  ════════════════════════════ -->
+  <section class="screen" id="victory-screen">
+    <div id="victory">
+      <span class="trophy">🏆</span>
+      <div class="star-row" id="star-row"></div>
+      <h2 id="win-headline">You matched them all!</h2>
+
+      <div class="win-grid">
+        <div class="win-box"><span class="v" id="win-time">—</span><span class="l">⏱ Time</span></div>
+        <div class="win-box"><span class="v" id="win-moves">—</span><span class="l">🖱 Moves</span></div>
+        <div class="win-box"><span class="v" id="win-score">—</span><span class="l">⭐ Points</span></div>
+      </div>
+
+      <div class="lb-status" id="lb-status"></div>
+
+      <div class="win-actions">
+        <button class="btn btn-pink" onclick="startGame()">🔄 Play Again</button>
+        <button class="btn btn-blue" onclick="showHome()"> 🏠 Home</button>
+      </div>
+
+      <div class="lb-wrap">
+        <h3>🏆 Live Leaderboard</h3>
+        <div id="win-lb"><span class="lb-spin">⏳</span></div>
+      </div>
     </div>
-  </div>
+  </section>
 
 </main>
 
 <script>
 /* ============================================================
-   MATCH IT! — VANILLA JS MATCHING PAIRS GAME
+   MATCH IT! — GAME + SHARED LIVE LEADERBOARD
    ============================================================
-   HOW IT WORKS:
-   1. Load flashcards.json (same file as the main app).
-   2. Randomly pick N pairs based on difficulty.
-   3. Create 2N tiles: one tile shows the QUESTION, one shows
-      the ANSWER. Shuffle them all onto a grid.
-   4. Player flips two tiles at a time. If question matches
-      its answer → matched (stays open). Otherwise → flip back.
-   5. Score, time, and stars are tracked and shown on win.
+
+   GAME:
+   All tiles are visible text from the start. No flipping.
+   Pink tiles = Questions.  Blue tiles = Answers.
+   Click a question (it gets a glowing yellow ring), then click
+   its matching answer. Wrong pair = brief red shake. Right pair
+   = green matched state.
+
+   SCORING:
+   score += max(50, BASE − seconds×TIME_PEN − moves×MOVE_PEN) / pairs
+   Each correct match awards a share of the total points,
+   so slow/sloppy play accumulates less.
+
+   LEADERBOARD:
+   Uses window.storage with shared=true so every user on
+   every device can see the same top-3 scores.
+   Key: 'matchit_leaderboard_v2'
+   Value: JSON array sorted by score desc (max 3 entries).
    ============================================================ */
 
+/* ── CONSTANTS ─────────────────────────────────── */
+const PAIRS     = { easy:6, medium:10, hard:14 };
+const BASE      = { easy:2000, medium:3500, hard:5500 };
+const T_PEN     = { easy:8,    medium:6,    hard:5 };   // pts lost per second
+const M_PEN     = { easy:30,   medium:25,   hard:20 };  // pts lost per extra move
+const STAR_T    = { easy:[25,50,99], medium:[50,100,200], hard:[70,140,280] };
+const LB_KEY    = 'matchit_leaderboard_v2';
+const TOP_N     = 3;
+const MEDALS    = ['🥇','🥈','🥉'];
+const DIFF_ICON = { easy:'😊', medium:'🔥', hard:'💀' };
+const CHEERS    = ['🎉 Match!','✨ Yes!','🔥 Boom!','💥 Nice!','⚡ Got it!','🌟 Woah!'];
 
-/* ── STATE ─────────────────────────────────────────────── */
-let allCards    = [];      // full deck from flashcards.json
-let gamePairs   = [];      // pairs selected for this round
-let flipped     = [];      // tiles currently face-up (max 2)
-let matched     = 0;       // number of matched pairs
-let totalPairs  = 0;
-let moves       = 0;
-let score       = 0;
-let timerInterval = null;
-let secondsElapsed = 0;
-let locked      = false;   // prevents clicking during flip-back
-let difficulty  = 'easy';  // 'easy' | 'medium' | 'hard'
+/* ── STATE ─────────────────────────────────────── */
+let allCards = [], gamePairs = [];
+let selectedQ  = null;   // currently selected question tile
+let matched    = 0, totalPairs = 0, moves = 0, score = 0;
+let secs       = 0, timerInt = null, locked = false;
+let diff       = 'easy', playerName = '';
+let cheerI     = 0;
 
-const PAIR_COUNTS = { easy: 8, medium: 12, hard: 16 };
-const CARD_EMOJIS = ['🦊','🐸','🦋','🐙','🦄','🐬','🦁','🐼',
-                     '🦜','🦩','🐨','🦔','🐳','🦕','🐲','🎃'];
-
-/* ── DIFFICULTY ─────────────────────────────────────────── */
-function setDiff(d) {
-  difficulty = d;
-  ['easy','medium','hard'].forEach(x => {
-    document.getElementById('diff-' + x).classList.toggle('active-diff', x === d);
-  });
-}
-
-/* ── LOAD CARDS ─────────────────────────────────────────── */
+/* ── LOAD CARDS ────────────────────────────────── */
 async function loadCards() {
   try {
-    const res = await fetch('flashcards.json');
-    allCards  = await res.json();
+    const r = await fetch('flashcards.json');
+    allCards = await r.json();
   } catch(e) {
-    alert('Could not load flashcards.json — make sure you\'re running via a local server!');
+    alert('⚠️ Cannot load flashcards.json — use a local server (python3 -m http.server)');
   }
+  renderLB('home-lb');
 }
 
-/* ── FISHER-YATES SHUFFLE ───────────────────────────────── */
+/* ── HELPERS ───────────────────────────────────── */
 function shuffle(arr) {
   const a = [...arr];
-  for (let i = a.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [a[i], a[j]] = [a[j], a[i]];
+  for (let i = a.length-1; i>0; i--) {
+    const j = 0|Math.random()*(i+1);
+    [a[i],a[j]] = [a[j],a[i]];
   }
   return a;
 }
+function fmt(s) { return ~~(s/60)+':'+String(s%60).padStart(2,'0'); }
+function esc(s) {
+  return String(s)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
 
-/* ── START GAME ─────────────────────────────────────────── */
+/* ── SCREEN ROUTING ────────────────────────────── */
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+function showHome() {
+  clearInterval(timerInt);
+  renderLB('home-lb');
+  showScreen('home-screen');
+}
+
+/* ── DIFFICULTY ────────────────────────────────── */
+function setDiff(d) {
+  diff = d;
+  ['easy','medium','hard'].forEach(x =>
+    document.getElementById('diff-'+x).classList.toggle('sel', x===d));
+}
+
+/* ── START ─────────────────────────────────────── */
 function startGame() {
-  if (allCards.length === 0) { alert('Cards not loaded yet!'); return; }
+  if (!allCards.length) { alert('Still loading cards…'); return; }
+  playerName = document.getElementById('player-name').value.trim() || 'Anonymous';
+  const n  = PAIRS[diff];
+  gamePairs   = shuffle(allCards).slice(0, Math.min(n, allCards.length));
+  totalPairs  = gamePairs.length;
+  matched = moves = score = secs = 0;
+  selectedQ = null; locked = false; cheerI = 0;
 
-  const count   = PAIR_COUNTS[difficulty];
-  gamePairs     = shuffle(allCards).slice(0, Math.min(count, allCards.length));
-  totalPairs    = gamePairs.length;
-  matched       = 0;
-  moves         = 0;
-  score         = 0;
-  flipped       = [];
-  locked        = false;
-  secondsElapsed = 0;
-
-  // Reset UI
-  document.getElementById('game-area').style.display = 'block';
-  document.getElementById('victory').style.display   = 'none';
-  document.getElementById('stats-bar').style.display = 'flex';
+  clearInterval(timerInt);
+  timerInt = setInterval(()=>{
+    secs++;
+    document.getElementById('timer-display').textContent = fmt(secs);
+  },1000);
 
   updateStats();
-
-  // Start timer
-  clearInterval(timerInterval);
-  timerInterval = setInterval(() => {
-    secondsElapsed++;
-    document.getElementById('timer-display').textContent = formatTime(secondsElapsed);
-  }, 1000);
-
-  // Difficulty label
-  const labels = { easy: '😊 Easy', medium: '🔥 Medium', hard: '💀 Hard' };
-  document.getElementById('diff-label').textContent =
-    labels[difficulty] + ' — ' + totalPairs + ' pairs to find';
-
+  banner('👆 Click a pink question to start!');
   buildGrid();
+  showScreen('game-screen');
 }
 
-/* ── BUILD GRID ─────────────────────────────────────────── */
+/* ── BUILD GRID ────────────────────────────────── */
 function buildGrid() {
-  const grid = document.getElementById('grid');
-  grid.innerHTML = '';
+  const qCol = document.getElementById('q-col');
+  const aCol = document.getElementById('a-col');
+  qCol.innerHTML = aCol.innerHTML = '';
 
-  // Set grid columns
-  const cols = difficulty === 'easy' ? 4 : difficulty === 'medium' ? 6 : 8;
-  grid.className = 'grid cols-' + cols;
+  /* Shuffle questions and answers independently so they never line up */
+  const qOrder = shuffle(gamePairs.map((_,i)=>i));
+  const aOrder = shuffle(gamePairs.map((_,i)=>i));
 
-  // Build tile data: each pair gets a question tile and an answer tile
-  let tiles = [];
-  gamePairs.forEach((card, i) => {
-    const colourIdx = i % 8;
-    const emoji     = CARD_EMOJIS[i % CARD_EMOJIS.length];
-    tiles.push({ id: 'q-' + i, pairId: i, type: 'question', text: card.question, colour: colourIdx, emoji });
-    tiles.push({ id: 'a-' + i, pairId: i, type: 'answer',   text: card.answer,   colour: colourIdx, emoji });
+  qOrder.forEach((pid,pos) => {
+    const t = tile(gamePairs[pid].question, 'question', pid, pos);
+    t.addEventListener('click', ()=>onQ(t));
+    qCol.appendChild(t);
+  });
+  aOrder.forEach((pid,pos) => {
+    const t = tile(gamePairs[pid].answer, 'answer', pid, pos);
+    t.addEventListener('click', ()=>onA(t));
+    aCol.appendChild(t);
   });
 
-  tiles = shuffle(tiles);
-
-  tiles.forEach(t => {
-    const div = document.createElement('div');
-    div.className   = 'tile';
-    div.dataset.id      = t.id;
-    div.dataset.pairId  = t.pairId;
-    div.dataset.type    = t.type;
-    div.dataset.colour  = t.colour;
-    div.dataset.fullText = t.text;           // store full text for modal
-    div.setAttribute('role', 'button');
-    div.setAttribute('aria-label', 'Hidden tile');
-    div.addEventListener('click', () => onTileClick(div));
-
-    // Front face — shows emoji while face-down
-    const front = document.createElement('div');
-    front.className   = 'tile-front';
-    front.textContent = t.emoji;
-    div.appendChild(front);
-
-    // Back face — shown when flipped
-    const back = document.createElement('div');
-    back.className = 'tile-back';
-
-    // Type icon row
-    const label = document.createElement('div');
-    label.style.cssText = 'font-size:0.65em;opacity:0.7;margin-bottom:3px;text-transform:uppercase;letter-spacing:0.08em;flex-shrink:0';
-    label.textContent = t.type === 'question' ? '❓ Question' : '💡 Answer';
-    back.appendChild(label);
-
-    // Text — clamp to 4 lines, overflow hidden
-    const inner = document.createElement('div');
-    inner.className   = 'tile-text-inner';
-    inner.textContent = t.text;
-    back.appendChild(inner);
-
-    // "Tap to read" hint — shown by JS after flip if text is clipped
-    const hint = document.createElement('div');
-    hint.className   = 'expand-hint';
-    hint.textContent = '👆 tap to read';
-    back.appendChild(hint);
-
-    div.appendChild(back);
-    grid.appendChild(div);
-  });
+  document.getElementById('game-area').style.display = 'block';
+  document.getElementById('pairs-total').textContent = totalPairs;
 }
 
-/* ── TILE CLICK ─────────────────────────────────────────── */
-function onTileClick(tile) {
-  // If tile is already flipped (but not yet judged), open the expand modal
-  if (tile.classList.contains('flipped') && !tile.classList.contains('matched')) {
-    openModal(tile);
+function tile(text, type, pid, pos) {
+  const d = document.createElement('div');
+  d.className = 'tile ' + type;
+  d.dataset.pid = pid;
+  d.style.animationDelay = (pos*.07)+'s';
+  d.setAttribute('role','button');
+  d.textContent = text;
+  return d;
+}
+
+/* ── QUESTION CLICK ────────────────────────────── */
+function onQ(t) {
+  if (locked || t.classList.contains('matched')) return;
+  if (selectedQ === t) {           // tap same Q to deselect
+    selectedQ.classList.remove('selected');
+    selectedQ = null;
+    banner('👆 Click a pink question to start!');
     return;
   }
-  // If tile is matched, tapping it opens the modal so you can re-read it
-  if (tile.classList.contains('matched')) {
-    openModal(tile);
-    return;
-  }
-  // Ignore during lock
-  if (locked) return;
-  // Already have two flipped — ignore
-  if (flipped.length >= 2) return;
-
-  tile.classList.add('flipped');
-  flipped.push(tile);
-
-  // After the flip animation completes, check if text is clipped
-  // and show the "tap to read" hint if so
-  setTimeout(() => checkTextClip(tile), 460);
-
-  if (flipped.length === 2) {
-    moves++;
-    updateStats();
-    checkMatch();
-  }
+  if (selectedQ) selectedQ.classList.remove('selected');
+  selectedQ = t;
+  t.classList.add('selected');
+  banner('✨ Now click the matching blue answer!');
 }
 
-/* Checks whether the text inside a flipped tile is being clipped,
-   and if so reveals the pulsing "tap to read" hint */
-function checkTextClip(tile) {
-  const inner = tile.querySelector('.tile-text-inner');
-  const hint  = tile.querySelector('.expand-hint');
-  if (!inner || !hint) return;
-  // scrollHeight > clientHeight means the text was cut off
-  if (inner.scrollHeight > inner.clientHeight + 2) {
-    hint.classList.add('visible');
-  }
-}
+/* ── ANSWER CLICK ──────────────────────────────── */
+function onA(t) {
+  if (locked || t.classList.contains('matched')) return;
+  if (!selectedQ) { banner('⬅️ Pick a pink question first!'); return; }
 
-/* ── CHECK MATCH ────────────────────────────────────────── */
-function checkMatch() {
-  const [a, b] = flipped;
-  const sameId   = a.dataset.pairId === b.dataset.pairId;
-  const diffType = a.dataset.type   !== b.dataset.type;   // must be one Q, one A
+  moves++;
+  updateStats();
 
-  if (sameId && diffType) {
-    // ✅ MATCH!
-    a.classList.add('matched');
-    b.classList.add('matched');
+  if (+selectedQ.dataset.pid === +t.dataset.pid) {
+    /* ✅ Correct match */
+    selectedQ.classList.remove('selected');
+    [selectedQ, t].forEach(el => el.classList.add('matched'));
     matched++;
 
-    // Score: faster = more points, fewer moves = more points
-    const timeBonus  = Math.max(0, 100 - secondsElapsed);
-    const moveBonus  = Math.max(0, 50  - moves);
-    score += 150 + timeBonus + moveBonus;
+    /* Award fractional points per pair */
+    const pts = Math.max(50, BASE[diff] - secs*T_PEN[diff] - moves*M_PEN[diff]);
+    score += Math.round(pts / totalPairs);
 
+    selectedQ = null;
     updateStats();
-    flipped = [];
+    banner(CHEERS[cheerI++ % CHEERS.length]);
 
-    if (matched === totalPairs) {
-      setTimeout(showVictory, 600);
-    }
+    if (matched === totalPairs) setTimeout(endGame, 600);
+
   } else {
-    // ❌ No match — shake and flip back
+    /* ❌ Wrong */
     locked = true;
-    a.classList.add('wrong');
-    b.classList.add('wrong');
-
-    setTimeout(() => {
-      a.classList.remove('flipped', 'wrong');
-      b.classList.remove('flipped', 'wrong');
-      flipped = [];
-      locked  = false;
-    }, 1000);
+    [selectedQ, t].forEach(el => el.classList.add('wrong-flash'));
+    banner('❌ Nope! Try again…');
+    setTimeout(()=>{
+      [selectedQ, t].forEach(el => el.classList.remove('wrong-flash','selected'));
+      selectedQ = null; locked = false;
+      banner('👆 Click a pink question to start!');
+    }, 750);
   }
 }
 
-/* ── VICTORY ────────────────────────────────────────────── */
-function showVictory() {
-  clearInterval(timerInterval);
-
-  const pct = matched / totalPairs;
-  const timeScore = secondsElapsed;
-
-  // Stars: based on time relative to difficulty
-  const starThresholds = { easy: [30,60,99], medium: [60,120,200], hard: [90,180,300] };
-  const thresh = starThresholds[difficulty];
-  const stars = timeScore <= thresh[0] ? 3 : timeScore <= thresh[1] ? 2 : 1;
-
-  document.getElementById('star-row').textContent  = '⭐'.repeat(stars) + '☆'.repeat(3 - stars);
-  document.getElementById('win-time').textContent  = formatTime(secondsElapsed);
-  document.getElementById('win-moves').textContent = moves;
-  document.getElementById('win-score').textContent = score;
-
-  document.getElementById('game-area').style.display  = 'none';
-  document.getElementById('victory').style.display    = 'block';
-
-  launchConfetti();
-}
-
-/* ── UPDATE STATS BAR ───────────────────────────────────── */
+/* ── STATS BAR ─────────────────────────────────── */
 function updateStats() {
   document.getElementById('moves-display').textContent = moves;
   document.getElementById('pairs-display').textContent = matched;
-  document.getElementById('pairs-total').textContent   = totalPairs;
   document.getElementById('score-display').textContent = score;
 }
+function banner(msg) { document.getElementById('sel-banner').textContent = msg; }
 
-/* ── FORMAT TIME ────────────────────────────────────────── */
-function formatTime(s) {
-  const m = Math.floor(s / 60);
-  const sec = s % 60;
-  return m + ':' + String(sec).padStart(2, '0');
+/* ── END GAME ──────────────────────────────────── */
+async function endGame() {
+  clearInterval(timerInt);
+
+  const t      = STAR_T[diff];
+  const stars  = secs <= t[0] ? 3 : secs <= t[1] ? 2 : 1;
+  const headlines = ['👍 Well done!', '🎉 Great job!', '🌟 Perfect run!'];
+
+  document.getElementById('star-row').textContent  = '⭐'.repeat(stars)+'☆'.repeat(3-stars);
+  document.getElementById('win-headline').textContent = headlines[stars-1];
+  document.getElementById('win-time').textContent   = fmt(secs);
+  document.getElementById('win-moves').textContent  = moves;
+  document.getElementById('win-score').textContent  = score;
+  document.getElementById('lb-status').textContent  = '⏳ Saving score…';
+
+  document.getElementById('victory').style.display  = 'block';
+  showScreen('victory-screen');
+  launchConfetti();
+
+  const placed = await saveScore(playerName, score, secs, moves, diff);
+  document.getElementById('lb-status').textContent  =
+    placed ? `🎊 You made the Top ${TOP_N} leaderboard!` : `Saved! (${score} pts)`;
+
+  renderLB('win-lb');
 }
 
-/* ── CONFETTI ────────────────────────────────────────────── */
-/*  A lightweight canvas confetti burst — no libraries needed  */
+/* ── LEADERBOARD STORAGE ───────────────────────── */
+async function readLB() {
+  try {
+    const r = await window.storage.get(LB_KEY, true);
+    return r ? JSON.parse(r.value) : [];
+  } catch(_) { return []; }
+}
+async function writeLB(data) {
+  try { await window.storage.set(LB_KEY, JSON.stringify(data), true); }
+  catch(e) { console.warn('LB write failed', e); }
+}
+
+/**
+ * Save score. Returns true if it entered the top N.
+ */
+async function saveScore(name, pts, time, mv, d) {
+  const board = await readLB();
+  board.push({
+    name, score: pts,
+    time: fmt(time), moves: mv, diff: d,
+    date: new Date().toLocaleDateString('en-GB',{day:'numeric',month:'short'})
+  });
+  board.sort((a,b) => b.score - a.score || toSecs(a.time) - toSecs(b.time));
+  const top = board.slice(0, TOP_N);
+  await writeLB(top);
+  return top.some(e => e.name===name && e.score===pts);
+}
+function toSecs(t) { const [m,s]=t.split(':').map(Number); return m*60+s; }
+
+async function renderLB(targetId) {
+  const el = document.getElementById(targetId);
+  if (!el) return;
+  el.innerHTML = '<span class="lb-spin">⏳</span>';
+
+  let board = [];
+  for (let i=0; i<3; i++) {
+    board = await readLB();
+    if (board.length) break;
+    await new Promise(r=>setTimeout(r,600));
+  }
+
+  if (!board.length) {
+    el.innerHTML = '<div class="lb-empty">No scores yet — be the first! 🏆</div>';
+    return;
+  }
+
+  el.innerHTML = board.map((e,i) => `
+    <div class="lb-row">
+      <div class="lb-rank">${MEDALS[i]||i+1+'.'}</div>
+      <div class="lb-name">${esc(e.name)}</div>
+      <div class="lb-pts">⭐ ${e.score.toLocaleString()}</div>
+      <div class="lb-meta">${DIFF_ICON[e.diff]||''} ${e.diff} · ⏱ ${e.time} · ${e.date}</div>
+    </div>`).join('');
+}
+
+/* ── CONFETTI ──────────────────────────────────── */
 function launchConfetti() {
-  const canvas = document.getElementById('confetti-canvas');
-  const ctx    = canvas.getContext('2d');
-  canvas.width  = window.innerWidth;
-  canvas.height = window.innerHeight;
-
-  const colours = ['#ff6b6b','#ffd93d','#6bcb77','#4d96ff','#ff9f43','#a29bfe','#fd79a8','#00cec9'];
-  const pieces  = Array.from({ length: 160 }, () => ({
-    x:  Math.random() * canvas.width,
-    y: -20 - Math.random() * canvas.height * 0.3,
-    w:  6 + Math.random() * 10,
-    h:  8 + Math.random() * 14,
-    r:  Math.random() * Math.PI * 2,
-    dr: (Math.random() - 0.5) * 0.2,
-    dx: (Math.random() - 0.5) * 3,
-    dy: 2 + Math.random() * 4,
-    colour: colours[Math.floor(Math.random() * colours.length)],
-    opacity: 1,
+  const cv = document.getElementById('confetti-canvas');
+  const cx = cv.getContext('2d');
+  cv.width = innerWidth; cv.height = innerHeight;
+  const cols = ['#ff6f91','#ffd93d','#6bcb77','#4cc9f0','#ff9f43','#a29bfe','#fd79a8','#ffe066'];
+  const ps = Array.from({length:180},()=>({
+    x:Math.random()*cv.width, y:-20-Math.random()*cv.height*.4,
+    w:5+Math.random()*9, h:8+Math.random()*12,
+    r:Math.random()*Math.PI*2, dr:(Math.random()-.5)*.18,
+    dx:(Math.random()-.5)*2.5, dy:2.5+Math.random()*3.5,
+    op:1, c:cols[0|Math.random()*cols.length]
   }));
-
-  let frame;
-  function draw() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    let alive = false;
-    pieces.forEach(p => {
-      p.x  += p.dx;
-      p.y  += p.dy;
-      p.r  += p.dr;
-      if (p.y > canvas.height * 0.6) p.opacity -= 0.02;
-      if (p.opacity > 0) {
-        alive = true;
-        ctx.save();
-        ctx.globalAlpha = Math.max(0, p.opacity);
-        ctx.translate(p.x, p.y);
-        ctx.rotate(p.r);
-        ctx.fillStyle = p.colour;
-        ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
-        ctx.restore();
+  let raf;
+  (function draw(){
+    cx.clearRect(0,0,cv.width,cv.height);
+    let alive=false;
+    ps.forEach(p=>{
+      p.x+=p.dx; p.y+=p.dy; p.r+=p.dr;
+      if(p.y>cv.height*.65) p.op-=.018;
+      if(p.op>0){
+        alive=true;
+        cx.save(); cx.globalAlpha=Math.max(0,p.op);
+        cx.translate(p.x,p.y); cx.rotate(p.r);
+        cx.fillStyle=p.c; cx.fillRect(-p.w/2,-p.h/2,p.w,p.h);
+        cx.restore();
       }
     });
-    if (alive) frame = requestAnimationFrame(draw);
-    else ctx.clearRect(0, 0, canvas.width, canvas.height);
-  }
-  draw();
-
-  // Stop after 4s
-  setTimeout(() => { cancelAnimationFrame(frame); ctx.clearRect(0,0,canvas.width,canvas.height); }, 4000);
+    if(alive) raf=requestAnimationFrame(draw);
+    else cx.clearRect(0,0,cv.width,cv.height);
+  })();
+  setTimeout(()=>{ cancelAnimationFrame(raf); cx.clearRect(0,0,cv.width,cv.height); },4500);
 }
 
-/* ── MODAL ───────────────────────────────────────────────── */
-
-// Colour gradients matching the tile colours (for modal background)
-const MODAL_GRADIENTS = [
-  'linear-gradient(135deg,#ff6b6b,#ee5253)',
-  'linear-gradient(135deg,#ffd93d,#f9ca24)',
-  'linear-gradient(135deg,#6bcb77,#2ecc71)',
-  'linear-gradient(135deg,#4d96ff,#2980b9)',
-  'linear-gradient(135deg,#ff9f43,#e67e22)',
-  'linear-gradient(135deg,#a29bfe,#6c5ce7)',
-  'linear-gradient(135deg,#fd79a8,#e84393)',
-  'linear-gradient(135deg,#00cec9,#00b5ad)',
-];
-const MODAL_TEXT_COLOURS = [
-  '#fff','#7a5700','#fff','#fff','#fff','#fff','#fff','#fff'
-];
-
-function openModal(tile) {
-  const colIdx   = parseInt(tile.dataset.colour, 10);
-  const isQ      = tile.dataset.type === 'question';
-  const fullText = tile.dataset.fullText;
-
-  const modal   = document.getElementById('tile-modal');
-  const overlay = document.getElementById('tile-modal-overlay');
-  const badge   = document.getElementById('modal-badge');
-  const textEl  = document.getElementById('modal-text');
-
-  modal.style.background = MODAL_GRADIENTS[colIdx] || MODAL_GRADIENTS[0];
-  textEl.style.color     = MODAL_TEXT_COLOURS[colIdx] || '#fff';
-  badge.style.color      = MODAL_TEXT_COLOURS[colIdx] || '#fff';
-  badge.textContent      = isQ ? '❓ Question' : '💡 Answer';
-  textEl.textContent     = fullText;
-
-  overlay.classList.add('open');
-}
-
-function closeModal() {
-  document.getElementById('tile-modal-overlay').classList.remove('open');
-}
-
-// Close when clicking the × button
-document.getElementById('modal-close-btn').addEventListener('click', closeModal);
-
-// Close when clicking outside the modal box
-document.getElementById('tile-modal-overlay').addEventListener('click', function(e) {
-  if (e.target === this) closeModal();
-});
-
-// Close on Escape key
-document.addEventListener('keydown', e => {
-  if (e.key === 'Escape') closeModal();
-});
-
-/* ── INIT ────────────────────────────────────────────────── */
+/* ── INIT ──────────────────────────────────────── */
 loadCards();
 </script>
 </body>
